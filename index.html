@@ -13,6 +13,7 @@
 import { initializeApp } from 'https://www.gstatic.com/firebasejs/10.7.1/firebase-app.js';
 import { getFirestore, collection, doc, setDoc, getDoc, getDocs, addDoc, updateDoc, query, where, orderBy, onSnapshot, serverTimestamp } from 'https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore.js';
 
+
 const firebaseConfig = {
   apiKey: "AIzaSyD7Cx6JJi2IZHc22r0MnpTL2GeVQW5jqyc",
   authDomain: "hiui-fd6db.firebaseapp.com",
@@ -33,28 +34,35 @@ window.dispatchEvent(new Event('firebase_ready'));
 <!-- Ethers.js v6 -->
 <script src="https://cdnjs.cloudflare.com/ajax/libs/ethers/6.7.0/ethers.umd.min.js"></script>
 
+
+
 <style>
+/* ============================
+   CSS VARIABLES & RESET
+   ============================ */
 :root {
-  --bg-base: #07090f;
-  --bg-surface: #0d1117;
-  --bg-card: #111827;
-  --bg-elevated: #1a2235;
-  --border: #1e2d42;
-  --border-light: #243350;
+  --bg-base: #0a0a0a;
+  --bg-surface: #111111;
+  --bg-card: #161616;
+  --bg-elevated: #1e1e1e;
+  --border: #2a2a2a;
+  --border-light: #333333;
+  --accent: #CCFF00;
+  --accent-dim: rgba(204,255,0,0.12);
   --accent-blue: #3b82f6;
   --accent-cyan: #06b6d4;
   --accent-green: #10b981;
   --accent-amber: #f59e0b;
   --accent-red: #ef4444;
-  --text-primary: #f0f4f8;
-  --text-secondary: #94a3b8;
-  --text-muted: #64748b;
+  --text-primary: #ffffff;
+  --text-secondary: #a0a0a0;
+  --text-muted: #555555;
   --font-head: 'Space Grotesk', sans-serif;
   --font-body: 'Inter', sans-serif;
   --font-mono: 'Space Mono', monospace;
-  --radius-card: 14px;
-  --radius-btn: 10px;
-  --radius-sm: 6px;
+  --radius-card: 16px;
+  --radius-btn: 12px;
+  --radius-sm: 8px;
   --nav-height: 72px;
   --topbar-height: 60px;
 }
@@ -76,6 +84,9 @@ button { cursor: pointer; border: none; background: none; font-family: inherit; 
 input, textarea, select { font-family: inherit; }
 a { color: inherit; text-decoration: none; }
 
+/* ============================
+   SCROLLABLE CONTENT AREA
+   ============================ */
 .page-content {
   position: fixed;
   top: var(--topbar-height);
@@ -86,8 +97,12 @@ a { color: inherit; text-decoration: none; }
   -webkit-overflow-scrolling: touch;
   padding: 16px 16px 24px;
 }
+
 .page-content::-webkit-scrollbar { display: none; }
 
+/* ============================
+   PAGE VISIBILITY
+   ============================ */
 .page { display: none; }
 .page.active { display: block; }
 #auth-page {
@@ -100,6 +115,9 @@ a { color: inherit; text-decoration: none; }
 }
 #auth-page.active { display: flex; flex-direction: column; }
 
+/* ============================
+   TOPBAR
+   ============================ */
 #topbar {
   position: fixed;
   top: 0; left: 0; right: 0;
@@ -107,7 +125,7 @@ a { color: inherit; text-decoration: none; }
   background: rgba(7,9,15,0.92);
   backdrop-filter: blur(20px);
   -webkit-backdrop-filter: blur(20px);
-  border-bottom: 1px solid var(--border);
+  border-bottom: 1px solid #1e1e1e;
   display: flex;
   align-items: center;
   justify-content: space-between;
@@ -124,6 +142,7 @@ a { color: inherit; text-decoration: none; }
   font-size: 17px;
   color: var(--text-primary);
 }
+
 .topbar-logo svg { flex-shrink: 0; }
 
 .topbar-right {
@@ -136,19 +155,19 @@ a { color: inherit; text-decoration: none; }
   display: flex;
   align-items: center;
   gap: 6px;
-  background: rgba(16,185,129,0.1);
-  border: 1px solid rgba(16,185,129,0.25);
+  background: rgba(204,255,0,0.1);
+  border: 1px solid rgba(204,255,0,0.25);
   border-radius: 20px;
   padding: 5px 12px;
   font-size: 13px;
   font-weight: 600;
-  color: var(--accent-green);
+  color: #CCFF00;
   font-family: var(--font-mono);
 }
 
 .balance-dot {
   width: 6px; height: 6px;
-  background: var(--accent-green);
+  background: #CCFF00;
   border-radius: 50%;
   animation: pulse-dot 2s infinite;
 }
@@ -167,6 +186,7 @@ a { color: inherit; text-decoration: none; }
 }
 .menu-btn:hover { background: var(--bg-elevated); color: var(--text-primary); }
 
+/* Dropdown */
 .dropdown-menu {
   position: fixed;
   top: calc(var(--topbar-height) + 8px);
@@ -197,6 +217,9 @@ a { color: inherit; text-decoration: none; }
 .dropdown-item.danger { color: var(--accent-red); }
 .dropdown-divider { height: 1px; background: var(--border); }
 
+/* ============================
+   BOTTOM NAV
+   ============================ */
 #bottom-nav {
   position: fixed;
   bottom: 0; left: 0; right: 0;
@@ -223,7 +246,8 @@ a { color: inherit; text-decoration: none; }
   transition: color 0.2s;
   position: relative;
 }
-.nav-tab.active { color: var(--accent-blue); }
+
+.nav-tab.active { color: #CCFF00; }
 .nav-tab-label { font-size: 10px; font-weight: 500; letter-spacing: 0.02em; }
 
 .nav-post-btn {
@@ -234,6 +258,30 @@ a { color: inherit; text-decoration: none; }
   margin-top: -10px;
   box-shadow: 0 4px 20px rgba(59,130,246,0.4);
   color: white;
+}
+
+/* ============================
+   AUTH PAGE
+   ============================ */
+.auth-particles {
+  position: absolute;
+  inset: 0;
+  overflow: hidden;
+  pointer-events: none;
+}
+
+.particle {
+  position: absolute;
+  border-radius: 50%;
+  animation: float-particle linear infinite;
+  opacity: 0;
+}
+
+@keyframes float-particle {
+  0%{opacity:0;transform:translateY(100vh) scale(0)}
+  10%{opacity:1}
+  90%{opacity:1}
+  100%{opacity:0;transform:translateY(-20px) scale(1)}
 }
 
 .auth-content {
@@ -248,15 +296,133 @@ a { color: inherit; text-decoration: none; }
   min-height: 100vh;
 }
 
+.auth-logo {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 16px;
+  margin-bottom: 32px;
+}
+
+.auth-logo-icon {
+  width: 72px; height: 72px;
+  background: linear-gradient(135deg, rgba(59,130,246,0.2), rgba(6,182,212,0.2));
+  border: 1px solid rgba(59,130,246,0.4);
+  border-radius: 20px;
+  display: flex; align-items: center; justify-content: center;
+}
+
+.auth-logo-name {
+  font-family: var(--font-head);
+  font-size: 28px;
+  font-weight: 700;
+  background: linear-gradient(135deg, var(--text-primary), var(--accent-cyan));
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+}
+
+.auth-headline {
+  font-family: var(--font-head);
+  font-size: 26px;
+  font-weight: 700;
+  text-align: center;
+  line-height: 1.25;
+  color: var(--text-primary);
+  margin-bottom: 12px;
+}
+
+.auth-sub {
+  text-align: center;
+  color: var(--text-muted);
+  font-size: 14px;
+  margin-bottom: 40px;
+  max-width: 300px;
+  line-height: 1.6;
+}
+
+.auth-network-badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  background: rgba(59,130,246,0.08);
+  border: 1px solid rgba(204,255,0,0.15);
+  border-radius: 20px;
+  padding: 4px 12px;
+  font-size: 12px;
+  font-weight: 500;
+  color: var(--accent-cyan);
+  margin-bottom: 32px;
+  font-family: var(--font-mono);
+}
+
+.auth-buttons {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  width: 100%;
+  max-width: 340px;
+}
+
+.auth-btn {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  width: 100%;
+  padding: 15px 20px;
+  background: var(--bg-card);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-btn);
+  color: var(--text-primary);
+  font-size: 15px;
+  font-weight: 500;
+  transition: all 0.2s;
+  position: relative;
+  overflow: hidden;
+}
+
+.auth-btn::before {
+  content: '';
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(135deg, rgba(59,130,246,0.05), transparent);
+  opacity: 0;
+  transition: opacity 0.2s;
+}
+
+.auth-btn:hover { border-color: var(--border-light); transform: translateY(-1px); box-shadow: 0 8px 24px rgba(0,0,0,0.3); }
+.auth-btn:hover::before { opacity: 1; }
+.auth-btn:active { transform: translateY(0); }
+
+.auth-btn-icon {
+  width: 24px; height: 24px;
+  flex-shrink: 0;
+  display: flex; align-items: center; justify-content: center;
+}
+
+/* ============================
+   CARDS
+   ============================ */
 .card {
   background: var(--bg-card);
   border: 1px solid var(--border);
   border-radius: var(--radius-card);
-  padding: 16px;
+  padding: 18px;
   transition: border-color 0.2s, box-shadow 0.2s;
 }
+
+.card-glass {
+  background: rgba(17,24,39,0.7);
+  backdrop-filter: blur(12px);
+  -webkit-backdrop-filter: blur(12px);
+  border: 1px solid rgba(30,45,66,0.8);
+}
+
 .card:hover { border-color: var(--border-light); }
 
+/* ============================
+   BUTTONS
+   ============================ */
 .btn {
   display: inline-flex;
   align-items: center;
@@ -272,11 +438,12 @@ a { color: inherit; text-decoration: none; }
 .btn:active { transform: scale(0.97); }
 
 .btn-primary {
-  background: linear-gradient(135deg, var(--accent-blue), #2563eb);
-  color: white;
-  box-shadow: 0 4px 16px rgba(59,130,246,0.25);
+  background: #CCFF00;
+  color: #000;
+  font-weight: 700;
+  box-shadow: 0 4px 16px rgba(204,255,0,0.2);
 }
-.btn-primary:hover { box-shadow: 0 6px 24px rgba(59,130,246,0.4); transform: translateY(-1px); }
+.btn-primary:hover { box-shadow: 0 6px 24px rgba(204,255,0,0.35); transform: translateY(-1px); }
 
 .btn-success {
   background: linear-gradient(135deg, var(--accent-green), #059669);
@@ -302,6 +469,9 @@ a { color: inherit; text-decoration: none; }
 .btn-sm { padding: 7px 14px; font-size: 13px; border-radius: 8px; }
 .btn-full { width: 100%; }
 
+/* ============================
+   STATUS BADGES
+   ============================ */
 .badge {
   display: inline-flex;
   align-items: center;
@@ -320,6 +490,9 @@ a { color: inherit; text-decoration: none; }
 .badge-resolved { background: rgba(100,116,139,0.12); color: var(--text-muted); border: 1px solid rgba(100,116,139,0.25); }
 .badge-cancelled { background: rgba(17,24,39,0.5); color: var(--text-muted); border: 1px solid var(--border); }
 
+/* ============================
+   FORMS
+   ============================ */
 .form-group { display: flex; flex-direction: column; gap: 6px; }
 .form-label { font-size: 13px; font-weight: 500; color: var(--text-secondary); }
 .form-input {
@@ -334,12 +507,16 @@ a { color: inherit; text-decoration: none; }
   width: 100%;
 }
 .form-input:focus {
-  border-color: var(--accent-blue);
-  box-shadow: 0 0 0 3px rgba(59,130,246,0.12);
+  border-color: #CCFF00;
+  box-shadow: 0 0 0 3px rgba(204,255,0,0.1);
 }
 .form-input::placeholder { color: var(--text-muted); }
+
 textarea.form-input { resize: vertical; min-height: 100px; line-height: 1.6; }
 
+/* ============================
+   SECTIONS & HEADINGS
+   ============================ */
 .section-title {
   font-family: var(--font-head);
   font-size: 16px;
@@ -363,6 +540,9 @@ textarea.form-input { resize: vertical; min-height: 100px; line-height: 1.6; }
 .gap-16 { gap: 16px; }
 .gap-4 { gap: 4px; }
 
+/* ============================
+   SKELETON SHIMMER
+   ============================ */
 .skeleton {
   background: linear-gradient(90deg, var(--bg-card) 25%, var(--bg-elevated) 50%, var(--bg-card) 75%);
   background-size: 200% 100%;
@@ -374,6 +554,9 @@ textarea.form-input { resize: vertical; min-height: 100px; line-height: 1.6; }
   100%{background-position:-200% 0}
 }
 
+/* ============================
+   TOASTS
+   ============================ */
 #toast-container {
   position: fixed;
   bottom: calc(var(--nav-height) + 12px);
@@ -417,6 +600,9 @@ textarea.form-input { resize: vertical; min-height: 100px; line-height: 1.6; }
   to{opacity:0;transform:translateY(8px) scale(0.95)}
 }
 
+/* ============================
+   MODAL / BOTTOM SHEET
+   ============================ */
 .modal-overlay {
   position: fixed;
   inset: 0;
@@ -461,6 +647,9 @@ textarea.form-input { resize: vertical; min-height: 100px; line-height: 1.6; }
   margin-bottom: 20px;
 }
 
+/* ============================
+   SPINNER OVERLAY
+   ============================ */
 .spinner-overlay {
   position: fixed;
   inset: 0;
@@ -485,6 +674,9 @@ textarea.form-input { resize: vertical; min-height: 100px; line-height: 1.6; }
 @keyframes spin { to{transform:rotate(360deg)} }
 .spinner-text { font-size: 14px; color: var(--text-secondary); }
 
+/* ============================
+   HOME PAGE
+   ============================ */
 .stats-grid {
   display: grid;
   grid-template-columns: repeat(3, 1fr);
@@ -521,9 +713,19 @@ textarea.form-input { resize: vertical; min-height: 100px; line-height: 1.6; }
   background: var(--bg-card);
   border: 1px solid var(--border);
   border-radius: var(--radius-card);
-  padding: 16px;
-  margin-bottom: 10px;
+  padding: 18px;
+  margin-bottom: 12px;
   transition: all 0.2s;
+  position: relative;
+  overflow: hidden;
+}
+.job-card::before {
+  content:'';
+  position:absolute;
+  left:0;top:0;bottom:0;
+  width:3px;
+  background:#CCFF00;
+  border-radius:3px 0 0 3px;
 }
 .job-card:active { opacity: 0.85; }
 
@@ -531,13 +733,14 @@ textarea.form-input { resize: vertical; min-height: 100px; line-height: 1.6; }
 .job-title { font-family: var(--font-head); font-size: 15px; font-weight: 600; color: var(--text-primary); flex: 1; }
 .job-budget {
   font-family: var(--font-mono);
-  font-size: 14px;
+  font-size: 15px;
   font-weight: 700;
-  color: var(--accent-green);
+  color: #CCFF00;
   white-space: nowrap;
 }
 
 .job-desc { font-size: 13px; color: var(--text-muted); margin-bottom: 12px; line-height: 1.5; overflow: hidden; display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; }
+
 .job-meta { display: flex; align-items: center; gap: 12px; font-size: 12px; color: var(--text-muted); margin-bottom: 12px; }
 
 .progress-bar {
@@ -550,7 +753,7 @@ textarea.form-input { resize: vertical; min-height: 100px; line-height: 1.6; }
 .progress-fill {
   height: 100%;
   border-radius: 2px;
-  background: linear-gradient(90deg, var(--accent-blue), var(--accent-cyan));
+  background: linear-gradient(90deg, #CCFF00, #a3e635);
   transition: width 0.4s ease;
 }
 
@@ -577,6 +780,9 @@ textarea.form-input { resize: vertical; min-height: 100px; line-height: 1.6; }
 .activity-time { font-size: 11px; color: var(--text-muted); }
 .activity-amount { font-family: var(--font-mono); font-size: 13px; font-weight: 600; }
 
+/* ============================
+   POST JOB - STEPS
+   ============================ */
 .step-indicator {
   display: flex;
   align-items: center;
@@ -597,7 +803,7 @@ textarea.form-input { resize: vertical; min-height: 100px; line-height: 1.6; }
   flex-shrink: 0;
   font-family: var(--font-head);
 }
-.step-dot.active { border-color: var(--accent-blue); background: var(--accent-blue); color: white; }
+.step-dot.active { border-color: #CCFF00; background: #CCFF00; color: #000; font-weight:700; }
 .step-dot.done { border-color: var(--accent-green); background: var(--accent-green); color: white; }
 
 .step-line {
@@ -607,7 +813,7 @@ textarea.form-input { resize: vertical; min-height: 100px; line-height: 1.6; }
   transition: background 0.3s;
   max-width: 40px;
 }
-.step-line.done { background: var(--accent-green); }
+.step-line.done { background: #CCFF00; }
 
 .step-panel { display: none; }
 .step-panel.active { display: block; animation: fade-in 0.2s ease; }
@@ -615,12 +821,13 @@ textarea.form-input { resize: vertical; min-height: 100px; line-height: 1.6; }
 
 .step-label {
   font-family: var(--font-head);
-  font-size: 20px;
-  font-weight: 700;
+  font-size: 22px;
+  font-weight: 800;
   color: var(--text-primary);
   margin-bottom: 6px;
+  letter-spacing: -0.3px;
 }
-.step-sublabel { font-size: 13px; color: var(--text-muted); margin-bottom: 24px; }
+.step-sublabel { font-size: 13px; color: var(--text-muted); margin-bottom: 24px; line-height:1.5; }
 
 .budget-display {
   font-family: var(--font-mono);
@@ -669,15 +876,19 @@ textarea.form-input { resize: vertical; min-height: 100px; line-height: 1.6; }
 .review-label { color: var(--text-muted); }
 .review-value { font-weight: 600; color: var(--text-primary); text-align: right; max-width: 60%; word-break: break-word; }
 
+/* ============================
+   WALLET PAGE
+   ============================ */
 .wallet-hero {
-  background: linear-gradient(135deg, #0f172a 0%, #1e3a5f 50%, #0f2937 100%);
-  border: 1px solid rgba(59,130,246,0.2);
+  background: linear-gradient(135deg, #0f0f0f 0%, #1a1f0a 50%, #111111 100%);
+  border: 1px solid rgba(204,255,0,0.15);
   border-radius: 18px;
   padding: 24px;
   margin-bottom: 16px;
   position: relative;
   overflow: hidden;
 }
+
 .wallet-hero::before {
   content: '';
   position: absolute;
@@ -729,6 +940,9 @@ textarea.form-input { resize: vertical; min-height: 100px; line-height: 1.6; }
 .tx-in { color: var(--accent-green); }
 .tx-out { color: var(--accent-red); }
 
+/* ============================
+   DISPUTES PAGE
+   ============================ */
 .dispute-card {
   background: var(--bg-card);
   border: 1px solid rgba(239,68,68,0.3);
@@ -736,14 +950,20 @@ textarea.form-input { resize: vertical; min-height: 100px; line-height: 1.6; }
   padding: 16px;
   margin-bottom: 12px;
 }
+
 .dispute-card.resolved { border-color: var(--border); opacity: 0.7; }
 
 .vote-bar { height: 8px; border-radius: 4px; overflow: hidden; background: var(--bg-elevated); margin: 12px 0; display: flex; }
 .vote-bar-green { background: var(--accent-green); transition: width 0.4s; }
 .vote-bar-red { background: var(--accent-red); flex: 1; }
+
 .vote-labels { display: flex; justify-content: space-between; font-size: 11px; margin-bottom: 8px; }
+
 .countdown { font-family: var(--font-mono); font-size: 16px; font-weight: 700; color: var(--accent-amber); }
 
+/* ============================
+   PROFILE PAGE
+   ============================ */
 .avatar-circle {
   width: 72px; height: 72px;
   border-radius: 50%;
@@ -771,7 +991,7 @@ textarea.form-input { resize: vertical; min-height: 100px; line-height: 1.6; }
   padding: 5px 12px;
   border-radius: 20px;
   background: rgba(59,130,246,0.08);
-  border: 1px solid rgba(59,130,246,0.2);
+  border: 1px solid rgba(204,255,0,0.15);
   font-size: 12px;
   font-weight: 500;
   color: var(--accent-cyan);
@@ -781,8 +1001,17 @@ textarea.form-input { resize: vertical; min-height: 100px; line-height: 1.6; }
 .skill-tag:hover { background: rgba(59,130,246,0.15); }
 .skill-tag.removable::after { content: ' ×'; opacity: 0.6; }
 
+/* ============================
+   SVG CHART
+   ============================ */
 .chart-wrap { position: relative; width: 100%; overflow: hidden; }
+.chart-bar {
+  transition: all 0.5s ease;
+}
 
+/* ============================
+   EXPLORE PAGE
+   ============================ */
 .search-wrap {
   position: relative;
   margin-bottom: 16px;
@@ -831,13 +1060,18 @@ textarea.form-input { resize: vertical; min-height: 100px; line-height: 1.6; }
 
 .fl-addr { font-family: var(--font-mono); font-size: 11px; color: var(--text-muted); margin-bottom: 8px; }
 .fl-name { font-size: 14px; font-weight: 600; color: var(--text-primary); margin-bottom: 2px; }
+
 .fl-skills { display: flex; flex-wrap: wrap; gap: 4px; margin-bottom: 10px; }
 .fl-skill { font-size: 10px; padding: 2px 8px; border-radius: 20px; background: var(--bg-elevated); color: var(--text-muted); }
+
 .stars { display: flex; gap: 2px; }
 .star-icon { width: 12px; height: 12px; }
 .star-filled { color: var(--accent-amber); }
 .star-empty { color: var(--border); }
 
+/* ============================
+   TABS
+   ============================ */
 .tab-bar {
   display: flex;
   gap: 4px;
@@ -859,8 +1093,11 @@ textarea.form-input { resize: vertical; min-height: 100px; line-height: 1.6; }
   cursor: pointer;
   white-space: nowrap;
 }
-.tab-btn.active { background: var(--bg-card); color: var(--text-primary); box-shadow: 0 1px 4px rgba(0,0,0,0.3); }
+.tab-btn.active { background: #CCFF00; color: #000; font-weight: 700; box-shadow: 0 2px 8px rgba(204,255,0,0.2); }
 
+/* ============================
+   EMPTY STATE
+   ============================ */
 .empty-state {
   display: flex;
   flex-direction: column;
@@ -874,6 +1111,9 @@ textarea.form-input { resize: vertical; min-height: 100px; line-height: 1.6; }
 .empty-title { font-family: var(--font-head); font-size: 16px; font-weight: 600; color: var(--text-secondary); }
 .empty-sub { font-size: 13px; color: var(--text-muted); }
 
+/* ============================
+   WARNING BOX
+   ============================ */
 .warning-box {
   background: rgba(245,158,11,0.08);
   border: 1px solid rgba(245,158,11,0.25);
@@ -885,6 +1125,9 @@ textarea.form-input { resize: vertical; min-height: 100px; line-height: 1.6; }
   margin-bottom: 16px;
 }
 
+/* ============================
+   COPY BTN
+   ============================ */
 .copy-btn {
   display: inline-flex; align-items: center; gap: 6px;
   padding: 4px 10px;
@@ -899,6 +1142,9 @@ textarea.form-input { resize: vertical; min-height: 100px; line-height: 1.6; }
 }
 .copy-btn:hover { color: var(--text-primary); }
 
+/* ============================
+   VERIFIED BADGE
+   ============================ */
 .verified-badge {
   display: inline-flex; align-items: center; gap: 5px;
   padding: 3px 10px;
@@ -912,18 +1158,7 @@ textarea.form-input { resize: vertical; min-height: 100px; line-height: 1.6; }
   letter-spacing: 0.06em;
 }
 
-/* ── FIX INDICATOR: shows chainJobId status on job cards ── */
-.chain-badge {
-  display: inline-flex; align-items: center; gap: 4px;
-  padding: 2px 8px;
-  border-radius: 20px;
-  font-size: 10px;
-  font-weight: 600;
-  font-family: var(--font-mono);
-}
-.chain-badge.on-chain { background: rgba(16,185,129,0.1); color: var(--accent-green); border: 1px solid rgba(16,185,129,0.2); }
-.chain-badge.off-chain { background: rgba(245,158,11,0.1); color: var(--accent-amber); border: 1px solid rgba(245,158,11,0.2); }
-
+/* util */
 .mt-8 { margin-top: 8px; }
 .mt-12 { margin-top: 12px; }
 .mt-16 { margin-top: 16px; }
@@ -941,6 +1176,7 @@ textarea.form-input { resize: vertical; min-height: 100px; line-height: 1.6; }
 .truncate { overflow:hidden; text-overflow:ellipsis; white-space:nowrap; }
 .w-full { width:100%; }
 
+/* connecting state */
 .connecting-wrap {
   display: flex; flex-direction: column; align-items: center; gap: 12px; padding: 32px 0;
 }
@@ -955,16 +1191,16 @@ textarea.form-input { resize: vertical; min-height: 100px; line-height: 1.6; }
 </head>
 <body>
 
-<!-- SPINNER OVERLAY -->
+<!-- ===== SPINNER OVERLAY ===== -->
 <div id="spinner-overlay" class="spinner-overlay">
   <div class="spinner"></div>
   <p class="spinner-text" id="spinner-text">Processing transaction...</p>
 </div>
 
-<!-- TOAST CONTAINER -->
+<!-- ===== TOAST CONTAINER ===== -->
 <div id="toast-container"></div>
 
-<!-- DROPDOWN MENU -->
+<!-- ===== DROPDOWN MENU ===== -->
 <div id="dropdown-menu" class="dropdown-menu">
   <div class="dropdown-item" onclick="navigate('home')">
     <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="m3 9 9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/><polyline points="9 22 9 12 15 12 15 22"/></svg>
@@ -1001,7 +1237,7 @@ textarea.form-input { resize: vertical; min-height: 100px; line-height: 1.6; }
   </div>
 </div>
 
-<!-- TOPBAR -->
+<!-- ===== TOPBAR ===== -->
 <header id="topbar" style="display:none;">
   <div class="topbar-logo">
     <svg width="28" height="28" viewBox="0 0 32 32" fill="none">
@@ -1009,8 +1245,8 @@ textarea.form-input { resize: vertical; min-height: 100px; line-height: 1.6; }
       <path d="M11 16l3.5 3.5L21 12" stroke="white" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
       <defs>
         <linearGradient id="shieldGrad" x1="4" y1="2" x2="28" y2="30" gradientUnits="userSpaceOnUse">
-          <stop stop-color="#3b82f6"/>
-          <stop offset="1" stop-color="#06b6d4"/>
+          <stop stop-color="#CCFF00"/>
+          <stop offset="1" stop-color="#a3e635"/>
         </linearGradient>
       </defs>
     </svg>
@@ -1027,7 +1263,7 @@ textarea.form-input { resize: vertical; min-height: 100px; line-height: 1.6; }
   </div>
 </header>
 
-<!-- BOTTOM NAV -->
+<!-- ===== BOTTOM NAV ===== -->
 <nav id="bottom-nav" style="display:none;">
   <div class="nav-tab" id="nav-home" onclick="navigate('home')">
     <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="m3 9 9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/><polyline points="9 22 9 12 15 12 15 22"/></svg>
@@ -1053,11 +1289,14 @@ textarea.form-input { resize: vertical; min-height: 100px; line-height: 1.6; }
   </div>
 </nav>
 
-<!-- APP WRAPPER -->
+<!-- ===========================
+     PAGE WRAPPER
+     =========================== -->
 <div id="app">
 
-  <!-- AUTH PAGE -->
+  <!-- ===== PAGE: AUTH ===== -->
   <div id="auth-page" class="page active">
+    <!-- subtle radial glow bg -->
     <div style="position:fixed;inset:0;pointer-events:none;z-index:0;
                 background:radial-gradient(ellipse 80% 60% at 50% 0%,
                 rgba(204,255,0,0.07) 0%, transparent 70%),
@@ -1067,6 +1306,7 @@ textarea.form-input { resize: vertical; min-height: 100px; line-height: 1.6; }
     <div class="auth-content" style="position:relative;z-index:1;
          justify-content:center;min-height:100vh;padding:60px 28px 48px;">
 
+      <!-- Logo — clean, no border radius clipping -->
       <div style="margin-bottom:28px;text-align:center;">
         <div style="display:inline-flex;align-items:center;justify-content:center;
                     width:100px;height:100px;border-radius:28px;
@@ -1080,16 +1320,19 @@ textarea.form-input { resize: vertical; min-height: 100px; line-height: 1.6; }
         </div>
       </div>
 
+      <!-- Brand name -->
       <h1 style="font-family:var(--font-head);font-size:32px;font-weight:800;
                  color:#f0f4f8;text-align:center;margin-bottom:8px;letter-spacing:-0.5px;">
         Freelance<span style="color:#CCFF00;">Shield</span>
       </h1>
 
+      <!-- Tagline -->
       <p style="color:#475569;font-size:14px;text-align:center;
                 margin-bottom:48px;line-height:1.6;max-width:260px;">
         On-chain escrow powered by Arc Network
       </p>
 
+      <!-- Buttons -->
       <div id="auth-buttons" style="width:100%;max-width:320px;
            display:flex;flex-direction:column;gap:12px;">
 
@@ -1120,6 +1363,7 @@ textarea.form-input { resize: vertical; min-height: 100px; line-height: 1.6; }
         </div>
       </div>
 
+      <!-- Connecting state -->
       <div id="connecting-state" class="connecting-wrap" style="display:none;">
         <div class="connecting-spinner" style="border-top-color:#CCFF00;"></div>
         <p style="color:#CCFF00;font-size:14px;font-weight:600;margin-top:4px;">Connecting wallet...</p>
@@ -1128,10 +1372,10 @@ textarea.form-input { resize: vertical; min-height: 100px; line-height: 1.6; }
     </div>
   </div>
 
-  <!-- MAIN CONTENT -->
+  <!-- ===== MAIN CONTENT WRAPPER ===== -->
   <div class="page-content" id="main-content" style="display:none;">
 
-    <!-- HOME PAGE -->
+    <!-- ===== PAGE: HOME ===== -->
     <div id="home-page" class="page active">
       <div class="stats-grid">
         <div class="stat-card">
@@ -1169,7 +1413,7 @@ textarea.form-input { resize: vertical; min-height: 100px; line-height: 1.6; }
       </div>
     </div>
 
-    <!-- JOBS PAGE -->
+    <!-- ===== PAGE: JOBS ===== -->
     <div id="jobs-page" class="page">
       <div class="tab-bar" id="jobs-tabs">
         <button class="tab-btn active" data-filter="all" onclick="filterJobs('all', this)">All</button>
@@ -1181,7 +1425,7 @@ textarea.form-input { resize: vertical; min-height: 100px; line-height: 1.6; }
       <div id="jobs-list"></div>
     </div>
 
-    <!-- POST JOB PAGE -->
+    <!-- ===== PAGE: POST JOB ===== -->
     <div id="post-page" class="page">
       <div class="step-indicator" id="step-indicator">
         <div class="step-dot active" id="step-dot-1">1</div>
@@ -1193,6 +1437,7 @@ textarea.form-input { resize: vertical; min-height: 100px; line-height: 1.6; }
         <div class="step-dot" id="step-dot-4">4</div>
       </div>
 
+      <!-- Step 1: Details -->
       <div class="step-panel active" id="step-panel-1">
         <h2 class="step-label">Job Details</h2>
         <p class="step-sublabel">Describe what you need done</p>
@@ -1202,8 +1447,23 @@ textarea.form-input { resize: vertical; min-height: 100px; line-height: 1.6; }
             <input type="text" class="form-input" id="job-title" placeholder="e.g. Build Uniswap V3 clone UI" maxlength="100"/>
           </div>
           <div class="form-group">
-            <label class="form-label">Description</label>
+            <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:6px;">
+              <label class="form-label" style="margin-bottom:0">Description</label>
+              <button type="button" onclick="aiGenerateDesc()"
+                style="display:flex;align-items:center;gap:5px;padding:4px 10px;
+                       border-radius:6px;background:rgba(204,255,0,0.1);
+                       border:1px solid rgba(204,255,0,0.3);cursor:pointer;
+                       font-size:11px;font-weight:600;color:#CCFF00;">
+                <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                  <path d="M12 2L2 7l10 5 10-5-10-5z"/><path d="M2 17l10 5 10-5"/><path d="M2 12l10 5 10-5"/>
+                </svg>
+                AI Write
+              </button>
+            </div>
             <textarea class="form-input" id="job-desc" placeholder="Describe the scope of work, deliverables, and any technical requirements..." rows="5"></textarea>
+            <div id="ai-gen-status" style="font-size:12px;color:#CCFF00;margin-top:4px;display:none;">
+              AI is writing...
+            </div>
           </div>
           <div class="form-group">
             <label class="form-label">Category</label>
@@ -1220,6 +1480,7 @@ textarea.form-input { resize: vertical; min-height: 100px; line-height: 1.6; }
         <button class="btn btn-primary btn-full mt-20" onclick="goStep(2)">Continue</button>
       </div>
 
+      <!-- Step 2: Budget & Freelancer -->
       <div class="step-panel" id="step-panel-2">
         <h2 class="step-label">Budget & Freelancer</h2>
         <p class="step-sublabel">Set payment and assign a freelancer</p>
@@ -1242,6 +1503,7 @@ textarea.form-input { resize: vertical; min-height: 100px; line-height: 1.6; }
         </div>
       </div>
 
+      <!-- Step 3: Deadline -->
       <div class="step-panel" id="step-panel-3">
         <h2 class="step-label">Timeline</h2>
         <p class="step-sublabel">When should this be completed?</p>
@@ -1264,6 +1526,7 @@ textarea.form-input { resize: vertical; min-height: 100px; line-height: 1.6; }
         </div>
       </div>
 
+      <!-- Step 4: Review -->
       <div class="step-panel" id="step-panel-4">
         <h2 class="step-label">Review & Confirm</h2>
         <p class="step-sublabel">Check all details before deploying to blockchain</p>
@@ -1284,7 +1547,7 @@ textarea.form-input { resize: vertical; min-height: 100px; line-height: 1.6; }
       </div>
     </div>
 
-    <!-- WALLET PAGE -->
+    <!-- ===== PAGE: WALLET ===== -->
     <div id="wallet-page" class="page">
       <div class="wallet-hero">
         <div class="wallet-label">Total Balance</div>
@@ -1328,7 +1591,7 @@ textarea.form-input { resize: vertical; min-height: 100px; line-height: 1.6; }
       </div>
     </div>
 
-    <!-- DISPUTES PAGE -->
+    <!-- ===== PAGE: DISPUTES ===== -->
     <div id="disputes-page" class="page">
       <div class="flex items-center justify-between mb-16">
         <h2 class="section-title" style="margin-bottom:0">Open Disputes</h2>
@@ -1345,7 +1608,7 @@ textarea.form-input { resize: vertical; min-height: 100px; line-height: 1.6; }
       </div>
     </div>
 
-    <!-- PROFILE PAGE -->
+    <!-- ===== PAGE: PROFILE ===== -->
     <div id="profile-page" class="page">
       <div class="card mb-16">
         <div class="flex items-center gap-16" style="margin-bottom:16px">
@@ -1406,7 +1669,9 @@ textarea.form-input { resize: vertical; min-height: 100px; line-height: 1.6; }
 
       <div class="card mb-16">
         <h3 class="section-title">Earnings (Last 6 Months)</h3>
-        <div class="chart-wrap" id="earnings-chart"></div>
+        <div class="chart-wrap" id="earnings-chart">
+          <!-- SVG chart rendered by JS -->
+        </div>
       </div>
 
       <button class="btn btn-ghost btn-full" onclick="signOut()" style="color:var(--accent-red);border-color:rgba(239,68,68,0.25);">
@@ -1415,7 +1680,7 @@ textarea.form-input { resize: vertical; min-height: 100px; line-height: 1.6; }
       </button>
     </div>
 
-    <!-- EXPLORE PAGE -->
+    <!-- ===== PAGE: EXPLORE ===== -->
     <div id="explore-page" class="page">
       <div class="search-wrap">
         <svg class="search-icon" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#64748b" stroke-width="2"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
@@ -1434,7 +1699,9 @@ textarea.form-input { resize: vertical; min-height: 100px; line-height: 1.6; }
   </div><!-- end main-content -->
 </div><!-- end app -->
 
-<!-- MODALS -->
+<!-- ============================
+     MODALS
+     ============================ -->
 
 <!-- Submit Work Modal -->
 <div class="modal-overlay" id="submit-work-modal">
@@ -1465,11 +1732,11 @@ textarea.form-input { resize: vertical; min-height: 100px; line-height: 1.6; }
     <h2 class="sheet-title">Raise Dispute</h2>
     <div class="warning-box">
       <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="flex-shrink:0"><path d="M10.29 3.86 1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z"/><line x1="12" y1="9" x2="12" y2="13"/><line x1="12" y1="17" x2="12.01" y2="17"/></svg>
-      <div>Disputes are resolved by community vote. Funds remain locked until a decision is reached.</div>
+      <div>Disputes are resolved by community vote. Funds remain locked until a decision is reached. This action cannot be undone.</div>
     </div>
     <div class="form-group">
       <label class="form-label">Reason for dispute</label>
-      <textarea class="form-input" id="dispute-reason" placeholder="Explain why you are raising a dispute..." rows="4"></textarea>
+      <textarea class="form-input" id="dispute-reason" placeholder="Explain why you are raising a dispute. Be specific about what was agreed and what was delivered." rows="4"></textarea>
     </div>
     <div class="flex gap-8 mt-20">
       <button class="btn btn-ghost" onclick="closeModal('dispute-modal')">Cancel</button>
@@ -1513,7 +1780,8 @@ textarea.form-input { resize: vertical; min-height: 100px; line-height: 1.6; }
     <h2 class="sheet-title">Receive USDC</h2>
     <div style="text-align:center;padding:16px 0">
       <div style="width:160px;height:160px;background:white;border-radius:12px;margin:0 auto 16px;display:flex;align-items:center;justify-content:center;">
-        <svg width="130" height="130" viewBox="0 0 130 130">
+        <svg width="130" height="130" id="qr-placeholder" viewBox="0 0 130 130">
+          <!-- QR code placeholder grid -->
           <rect width="130" height="130" fill="white"/>
           <g fill="#111827">
             <rect x="10" y="10" width="7" height="7"/><rect x="17" y="10" width="7" height="7"/>
@@ -1526,7 +1794,9 @@ textarea.form-input { resize: vertical; min-height: 100px; line-height: 1.6; }
             <rect x="10" y="38" width="7" height="7"/><rect x="17" y="38" width="7" height="7"/>
             <rect x="24" y="38" width="7" height="7"/><rect x="31" y="38" width="7" height="7"/>
             <rect x="38" y="38" width="7" height="7"/>
+            <!-- center -->
             <rect x="55" y="55" width="20" height="20" rx="2"/>
+            <!-- right corner -->
             <rect x="85" y="10" width="7" height="7"/><rect x="92" y="10" width="7" height="7"/>
             <rect x="99" y="10" width="7" height="7"/><rect x="106" y="10" width="7" height="7"/>
             <rect x="113" y="10" width="7" height="7"/>
@@ -1538,6 +1808,7 @@ textarea.form-input { resize: vertical; min-height: 100px; line-height: 1.6; }
             <rect x="85" y="38" width="7" height="7"/><rect x="92" y="38" width="7" height="7"/>
             <rect x="99" y="38" width="7" height="7"/><rect x="106" y="38" width="7" height="7"/>
             <rect x="113" y="38" width="7" height="7"/>
+            <!-- bottom left corner -->
             <rect x="10" y="85" width="7" height="7"/><rect x="17" y="85" width="7" height="7"/>
             <rect x="24" y="85" width="7" height="7"/><rect x="31" y="85" width="7" height="7"/>
             <rect x="38" y="85" width="7" height="7"/>
@@ -1549,6 +1820,15 @@ textarea.form-input { resize: vertical; min-height: 100px; line-height: 1.6; }
             <rect x="10" y="113" width="7" height="7"/><rect x="17" y="113" width="7" height="7"/>
             <rect x="24" y="113" width="7" height="7"/><rect x="31" y="113" width="7" height="7"/>
             <rect x="38" y="113" width="7" height="7"/>
+            <!-- scatter -->
+            <rect x="50" y="17" width="7" height="7"/><rect x="64" y="24" width="7" height="7"/>
+            <rect x="71" y="17" width="7" height="7"/><rect x="57" y="38" width="7" height="7"/>
+            <rect x="78" y="45" width="7" height="7"/><rect x="50" y="50" width="7" height="7"/>
+            <rect x="71" y="64" width="7" height="7"/><rect x="85" y="57" width="7" height="7"/>
+            <rect x="50" y="78" width="7" height="7"/><rect x="64" y="85" width="7" height="7"/>
+            <rect x="57" y="92" width="7" height="7"/><rect x="78" y="99" width="7" height="7"/>
+            <rect x="92" y="71" width="7" height="7"/><rect x="106" y="64" width="7" height="7"/>
+            <rect x="99" y="85" width="7" height="7"/><rect x="85" y="92" width="7" height="7"/>
           </g>
         </svg>
       </div>
@@ -1563,7 +1843,7 @@ textarea.form-input { resize: vertical; min-height: 100px; line-height: 1.6; }
   <div class="modal-sheet">
     <div class="sheet-handle"></div>
     <h2 class="sheet-title">Cast Your Vote</h2>
-    <p style="font-size:13px;color:var(--text-muted);margin-bottom:20px">Your vote is recorded on-chain and cannot be changed.</p>
+    <p style="font-size:13px;color:var(--text-muted);margin-bottom:20px">Your vote is recorded on-chain and cannot be changed. Vote for who you believe is in the right based on the evidence.</p>
     <input type="hidden" id="vote-job-id"/>
     <div class="flex gap-8">
       <button class="btn btn-success" style="flex:1" onclick="doVote(true)">
@@ -1652,23 +1932,14 @@ const STATE = {
   postData: { title:'', desc:'', category:'Development', budget:500, freelancer:'', deadline:'' },
   exploreFilter: '',
   jobsFilter: 'all',
-  balance: '0.00',
 };
 
 const CONTRACT_ADDRESS = '0x8AF2a8818994DDC5AF45dD67A41259e895558a43';
-
-// ── FIX 1: Arc Testnet USDC address (native gas token = USDC on Arc)
-// Arc uses USDC as native currency, so we use the wrapped ERC-20 USDC
-// deployed by Circle on Arc testnet.
-const USDC_ADDRESS = '0x3c499c542cEF5E3811e1192ce70d8cC03d5c3359';
-// NOTE: If the above doesn't work, check https://testnet.arcscan.app
-// for the current USDC token contract address on Arc testnet.
-
+const USDC_ADDRESS = '0x3600000000000000000000000000000000000000';
 const USDC_DECIMALS = 6;
 const ARC_CHAIN_ID = 5042002;
 const ARC_RPC = 'https://rpc.testnet.arc.network';
 
-// ── FIX 2: Added JobCreated event to ABI so we can get chainJobId
 const CONTRACT_ABI = [
   "function createJob(address freelancer, uint256 amount, uint256 deadline, string description) returns (uint256)",
   "function submitWork(uint256 jobId, string workLink)",
@@ -1680,11 +1951,7 @@ const CONTRACT_ABI = [
   "function getJob(uint256 jobId) view returns (tuple(uint256 id, address client, address freelancer, uint256 amount, uint256 deadline, uint8 status, string description, string workLink))",
   "function getClientJobs(address client) view returns (uint256[])",
   "function getFreelancerJobs(address freelancer) view returns (uint256[])",
-  "function getDisputeVotes(uint256 jobId) view returns (uint256 forFreelancer, uint256 forClient)",
-  "event JobCreated(uint256 indexed jobId, address indexed client, address indexed freelancer, uint256 amount)",
-  "event WorkSubmitted(uint256 indexed jobId, string workLink)",
-  "event PaymentReleased(uint256 indexed jobId, address indexed freelancer, uint256 amount)",
-  "event DisputeRaised(uint256 indexed jobId)"
+  "function getDisputeVotes(uint256 jobId) view returns (uint256 forFreelancer, uint256 forClient)"
 ];
 
 const USDC_ABI = [
@@ -1698,7 +1965,10 @@ const USDC_ABI = [
    INIT
    ============================================================ */
 async function initApp() {
+  generateParticles();
   setDefaultDeadline();
+  
+  // Restore session
   const saved = localStorage.getItem('fs_wallet');
   if (saved) {
     await tryReconnect(saved);
@@ -1720,6 +1990,7 @@ async function tryReconnect(addr) {
     try {
       let provider = window.ethereum;
       if (window.ethereum.providers) {
+        // Try previously used provider
         const method = localStorage.getItem('fs_wallet_type') || 'metamask';
         if (method === 'rabby') {
           provider = window.ethereum.providers.find(p => p.isRabby) || provider;
@@ -1740,7 +2011,6 @@ async function tryReconnect(addr) {
 
 function showAuthPage() {
   document.getElementById('auth-page').classList.add('active');
-  document.getElementById('auth-page').style.display = 'flex';
   document.getElementById('topbar').style.display = 'none';
   document.getElementById('bottom-nav').style.display = 'none';
   document.getElementById('main-content').style.display = 'none';
@@ -1757,7 +2027,7 @@ function showApp() {
 }
 
 /* ============================================================
-   AUTH
+   AUTH / LOGIN
    ============================================================ */
 function openWalletModal(type) {
   document.getElementById('wallet-modal-title').textContent =
@@ -1769,21 +2039,27 @@ async function connectRabby() {
   showConnecting('Connecting Rabby Wallet...');
   try {
     let provider = null;
+
+    // Case 1: multiple providers — pick Rabby
     if (window.ethereum?.providers?.length) {
       provider = window.ethereum.providers.find(p => p.isRabby);
     }
+    // Case 2: only Rabby installed
     if (!provider && window.ethereum?.isRabby) {
       provider = window.ethereum;
     }
+    // Case 3: fallback to whatever is available
     if (!provider && window.ethereum) {
       provider = window.ethereum;
       showToast('warning', 'Rabby Not Detected', 'Using default wallet instead');
     }
+
     if (!provider) {
       hideConnecting();
       showToast('error', 'Rabby Not Found', 'Install Rabby Wallet from rabby.io');
       return;
     }
+
     const accounts = await provider.request({ method: 'eth_requestAccounts' });
     if (!accounts.length) throw new Error('No accounts returned');
     await ensureNetworkWithProvider(provider);
@@ -1798,42 +2074,13 @@ async function connectRabby() {
   }
 }
 
-async function connectMetaMask() {
-  showConnecting('Connecting MetaMask...');
-  try {
-    let provider = null;
-    if (window.ethereum?.providers?.length) {
-      provider = window.ethereum.providers.find(p => p.isMetaMask && !p.isRabby);
-    }
-    if (!provider && window.ethereum?.isMetaMask && !window.ethereum?.isRabby) {
-      provider = window.ethereum;
-    }
-    if (!provider && window.ethereum) {
-      provider = window.ethereum;
-    }
-    if (!provider) {
-      hideConnecting();
-      showToast('error', 'MetaMask Not Found', 'Install MetaMask extension first');
-      return;
-    }
-    const accounts = await provider.request({ method: 'eth_requestAccounts' });
-    if (!accounts.length) throw new Error('No accounts returned');
-    await ensureNetworkWithProvider(provider);
-    await setupWalletWithProvider(accounts[0], provider);
-  } catch(e) {
-    hideConnecting();
-    if (e.code === 4001) {
-      showToast('error', 'Rejected', 'Connection was rejected');
-    } else {
-      showToast('error', 'Connection Failed', e.message || 'Could not connect wallet');
-    }
-  }
-}
-
 async function ensureNetworkWithProvider(provider) {
   const chainIdHex = await provider.request({ method: 'eth_chainId' });
   const chainId = parseInt(chainIdHex, 16);
-  if (chainId === ARC_CHAIN_ID) return;
+  if (chainId === ARC_CHAIN_ID) return; // already on Arc
+
+  // Always try addEthereumChain first — works for both unknown and known chains
+  // switchEthereumChain only works if chain already added
   try {
     await provider.request({
       method: 'wallet_addEthereumChain',
@@ -1846,13 +2093,16 @@ async function ensureNetworkWithProvider(provider) {
       }]
     });
   } catch(addErr) {
+    // If addEthereumChain fails (e.g. chain already exists), try switch
     try {
       await provider.request({
         method: 'wallet_switchEthereumChain',
         params: [{ chainId: '0x' + ARC_CHAIN_ID.toString(16) }]
       });
     } catch(switchErr) {
+      // code 4001 = user rejected
       if (switchErr.code === 4001) throw switchErr;
+      // Otherwise ignore — wallet may still work
       console.warn('Network switch warning:', switchErr.message);
     }
   }
@@ -1874,16 +2124,53 @@ async function setupWalletWithProvider(address, rawProvider) {
   await saveUserToFirebase();
 }
 
+async function connectMetaMask() {
+  showConnecting('Connecting MetaMask...');
+  try {
+    let provider = null;
+
+    // Case 1: multiple providers injected (Rabby + MetaMask both installed)
+    if (window.ethereum?.providers?.length) {
+      provider = window.ethereum.providers.find(p => p.isMetaMask && !p.isRabby);
+    }
+    // Case 2: only MetaMask
+    if (!provider && window.ethereum?.isMetaMask && !window.ethereum?.isRabby) {
+      provider = window.ethereum;
+    }
+    // Case 3: any EIP-1193 provider (fallback)
+    if (!provider && window.ethereum) {
+      provider = window.ethereum;
+    }
+
+    if (!provider) {
+      hideConnecting();
+      showToast('error', 'MetaMask Not Found', 'Install MetaMask extension first');
+      return;
+    }
+
+    const accounts = await provider.request({ method: 'eth_requestAccounts' });
+    if (!accounts.length) throw new Error('No accounts returned');
+    await ensureNetworkWithProvider(provider);
+    await setupWalletWithProvider(accounts[0], provider);
+  } catch(e) {
+    hideConnecting();
+    if (e.code === 4001) {
+      showToast('error', 'Rejected', 'Connection was rejected');
+    } else {
+      showToast('error', 'Connection Failed', e.message || 'Could not connect wallet');
+    }
+  }
+}
+
 async function signOut() {
   closeDropdown();
   localStorage.removeItem('fs_wallet');
-  localStorage.removeItem('fs_wallet_type');
   STATE.wallet = null;
   STATE.user = null;
   STATE.jobs = [];
-  STATE.contract = null;
-  STATE.usdcContract = null;
   showAuthPage();
+  document.getElementById('auth-page').classList.add('active');
+  document.getElementById('auth-page').style.display = 'flex';
   showToast('success', 'Signed Out', 'See you next time');
 }
 
@@ -1897,12 +2184,15 @@ function navigate(page) {
     const el = document.getElementById(p + '-page');
     if (el) el.classList.toggle('active', p === page);
   });
+  
   const navMap = { home:'nav-home', jobs:'nav-jobs', post:'nav-post', wallet:'nav-wallet', profile:'nav-profile' };
   Object.entries(navMap).forEach(([p, id]) => {
     const el = document.getElementById(id);
     if (el) el.classList.toggle('active', p === page);
   });
+
   STATE.currentPage = page;
+  
   if (page === 'home') loadHomePage();
   if (page === 'jobs') loadJobsPage();
   if (page === 'wallet') loadWalletPage();
@@ -1941,13 +2231,6 @@ async function fbUpdate(col, id, data) {
   await updateDoc(doc(window._fs_db, col, id), { ...data, updatedAt: serverTimestamp() });
 }
 
-async function fbGet(col, id) {
-  await waitForFirebase();
-  const { doc, getDoc } = window._fs_firebase;
-  const snap = await getDoc(doc(window._fs_db, col, id));
-  return snap.exists() ? { id: snap.id, ...snap.data() } : null;
-}
-
 async function fbQuery(col, field, value) {
   await waitForFirebase();
   const { collection, query, where, getDocs } = window._fs_firebase;
@@ -1964,7 +2247,7 @@ async function fbGetAll(col) {
 }
 
 /* ============================================================
-   DATA LOADING
+   LOAD DATA
    ============================================================ */
 async function loadAllData() {
   await loadUSDCBalance();
@@ -1981,8 +2264,6 @@ async function loadUSDCBalance() {
     document.getElementById('wallet-balance-display').textContent = bal + ' USDC';
     document.getElementById('send-balance').textContent = bal + ' USDC';
   } catch(e) {
-    console.warn('Balance load failed:', e.message);
-    // Don't crash — just show dashes
     document.getElementById('topbar-balance').textContent = '—';
   }
 }
@@ -2000,7 +2281,6 @@ async function loadJobs() {
     });
     STATE.jobs = merged;
   } catch(e) {
-    console.warn('Jobs load failed:', e.message);
     STATE.jobs = [];
   }
 }
@@ -2033,14 +2313,19 @@ function renderHomeStats() {
     .reduce((s, j) => s + (parseFloat(j.amount) || 0), 0);
   const total = jobs.length;
   const rate = total > 0 ? Math.round((completed / total) * 100) : 0;
-  document.getElementById('stat-locked').textContent = '$' + locked.toFixed(0);
-  document.getElementById('stat-completed').textContent = completed;
-  document.getElementById('stat-rate').textContent = rate + '%';
+
+  animateCount('stat-locked', '$' + locked.toFixed(0));
+  animateCount('stat-completed', completed);
+  animateCount('stat-rate', rate + '%');
+}
+
+function animateCount(id, target) {
+  document.getElementById(id).textContent = target;
 }
 
 function renderHomeJobs() {
   const list = document.getElementById('home-jobs-list');
-  const active = STATE.jobs.filter(j => ['open','submitted'].includes(j.status));
+  const active = STATE.jobs.filter(j => ['open','submitted','disputed'].includes(j.status));
   if (!active.length) {
     list.innerHTML = `<div class="empty-state">
       <svg class="empty-icon" width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><rect width="20" height="14" x="2" y="7" rx="2"/><path d="M16 21V5a2 2 0 0 0-2-2h-4a2 2 0 0 0-2 2v16"/></svg>
@@ -2057,7 +2342,47 @@ function renderJobCard(job) {
   const isClient = job.client && job.client.toLowerCase() === STATE.wallet.toLowerCase();
   const progress = jobProgress(job.status);
   const deadlineTxt = job.deadline ? daysLeft(job.deadline) : '—';
-  const hasChainId = job.chainJobId !== null && job.chainJobId !== undefined;
+
+  // Work link section — visible to client when work is submitted
+  let workLinkHtml = '';
+  if (job.workLink && isClient && job.status === 'submitted') {
+    workLinkHtml = `
+    <div style="background:rgba(204,255,0,0.06);border:1px solid rgba(204,255,0,0.2);
+                border-radius:10px;padding:12px 14px;margin-bottom:12px;">
+      <div style="font-size:11px;color:#64748b;text-transform:uppercase;
+                  letter-spacing:0.06em;margin-bottom:6px;font-weight:600;">
+        Submitted Work
+      </div>
+      <div style="display:flex;align-items:center;gap:8px;">
+        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#CCFF00" stroke-width="2">
+          <path d="M10 13a5 5 0 0 0 7.54.54l3-3a5 5 0 0 0-7.07-7.07l-1.72 1.71"/>
+          <path d="M14 11a5 5 0 0 0-7.54-.54l-3 3a5 5 0 0 0 7.07 7.07l1.71-1.71"/>
+        </svg>
+        <span style="font-size:13px;color:#f0f4f8;flex:1;overflow:hidden;
+                     text-overflow:ellipsis;white-space:nowrap;font-family:var(--font-mono);">
+          ${escHtml(job.workLink)}
+        </span>
+        <a href="${escHtml(job.workLink)}" target="_blank"
+           style="flex-shrink:0;padding:5px 12px;border-radius:6px;
+                  background:#CCFF00;color:#000;font-size:12px;
+                  font-weight:700;text-decoration:none;">
+          Open
+        </a>
+      </div>
+      ${job.workNotes ? `<p style="font-size:12px;color:#94a3b8;margin-top:8px;line-height:1.5;">${escHtml(job.workNotes)}</p>` : ''}
+    </div>`;
+  }
+
+  // Freelancer sees their own submitted link
+  let myWorkHtml = '';
+  if (job.workLink && !isClient && job.status === 'submitted') {
+    myWorkHtml = `
+    <div style="background:rgba(16,185,129,0.06);border:1px solid rgba(16,185,129,0.2);
+                border-radius:10px;padding:10px 14px;margin-bottom:12px;
+                font-size:12px;color:#10b981;">
+      Work submitted — awaiting client review
+    </div>`;
+  }
 
   let actions = '';
   if (job.status === 'open' && !isClient) {
@@ -2081,9 +2406,10 @@ function renderJobCard(job) {
       <span class="${badgeClass(job.status)}">${capFirst(job.status || 'open')}</span>
       <span>${deadlineTxt}</span>
       <span>${isClient ? 'Client' : 'Freelancer'}</span>
-      <span class="chain-badge ${hasChainId ? 'on-chain' : 'off-chain'}">${hasChainId ? '⛓ #'+job.chainJobId : '⚠ no chain ID'}</span>
     </div>
     <div class="progress-bar"><div class="progress-fill" style="width:${progress}%"></div></div>
+    ${workLinkHtml}
+    ${myWorkHtml}
     ${actions ? `<div class="job-actions">${actions}</div>` : ''}
   </div>`;
 }
@@ -2102,13 +2428,17 @@ function renderActivityFeed() {
   }).slice(0,5);
 
   if (!recent.length) {
-    feed.innerHTML = `<div class="empty-state" style="padding:24px"><p class="empty-sub">No recent activity</p></div>`;
+    feed.innerHTML = `<div class="empty-state" style="padding:24px">
+      <p class="empty-sub">No recent activity</p>
+    </div>`;
     return;
   }
 
   feed.innerHTML = recent.map(j => `
     <div class="activity-item">
-      <div class="activity-icon" style="background:${activityBg(j.status)}">${activityIcon(j.status)}</div>
+      <div class="activity-icon" style="background:${activityBg(j.status)}">
+        ${activityIcon(j.status)}
+      </div>
       <div class="activity-body">
         <p class="activity-title">${escHtml(j.title || 'Job')}</p>
         <p class="activity-time">${j.updatedAt ? timeAgo(j.updatedAt.seconds * 1000) : 'Recently'}</p>
@@ -2127,7 +2457,7 @@ function activityBg(status) {
 
 function activityIcon(status) {
   const icons = {
-    open: `<svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#3b82f6" stroke-width="2"><rect width="20" height="14" x="2" y="7" rx="2"/></svg>`,
+    open: `<svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#3b82f6" stroke-width="2"><rect width="20" height="14" x="2" y="7" rx="2"/><path d="M16 21V5a2 2 0 0 0-2-2h-4a2 2 0 0 0-2 2v16"/></svg>`,
     submitted: `<svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#f59e0b" stroke-width="2"><line x1="22" y1="2" x2="11" y2="13"/><polygon points="22 2 15 22 11 13 2 9 22 2"/></svg>`,
     completed: `<svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#10b981" stroke-width="2"><polyline points="20 6 9 17 4 12"/></svg>`,
     disputed: `<svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#ef4444" stroke-width="2"><path d="M10.29 3.86 1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z"/></svg>`
@@ -2149,7 +2479,9 @@ function filterJobs(filter, btn) {
     document.querySelectorAll('#jobs-tabs .tab-btn').forEach(b => b.classList.remove('active'));
     btn.classList.add('active');
   }
-  const filtered = filter === 'all' ? STATE.jobs : STATE.jobs.filter(j => j.status === filter);
+  const filtered = filter === 'all' 
+    ? STATE.jobs.filter(j => j.status !== 'completed' && j.status !== 'cancelled')
+    : STATE.jobs.filter(j => j.status === filter);
   const list = document.getElementById('jobs-list');
   if (!filtered.length) {
     list.innerHTML = `<div class="empty-state">
@@ -2170,6 +2502,7 @@ function resetPostJob() {
   STATE.postData = { title:'', desc:'', category:'Development', budget:500, freelancer:'', deadline:'' };
   goStep(1, true);
   setDefaultDeadline();
+  
   const preAddr = localStorage.getItem('fs_prefill_addr');
   if (preAddr) {
     document.getElementById('freelancer-addr').value = preAddr;
@@ -2183,22 +2516,19 @@ function goStep(step, silent) {
   if (!silent && step > prev) {
     if (!validateStep(prev)) return;
   }
+
   for (let i = 1; i <= 4; i++) {
     document.getElementById('step-panel-' + i).classList.toggle('active', i === step);
     const dot = document.getElementById('step-dot-' + i);
-    if (i < step) {
-      dot.classList.add('done'); dot.classList.remove('active');
-      dot.innerHTML = `<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3"><polyline points="20 6 9 17 4 12"/></svg>`;
-    } else if (i === step) {
-      dot.classList.add('active'); dot.classList.remove('done'); dot.textContent = i;
-    } else {
-      dot.classList.remove('active','done'); dot.textContent = i;
-    }
+    if (i < step) { dot.classList.add('done'); dot.classList.remove('active'); dot.innerHTML = `<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3"><polyline points="20 6 9 17 4 12"/></svg>`; }
+    else if (i === step) { dot.classList.add('active'); dot.classList.remove('done'); dot.textContent = i; }
+    else { dot.classList.remove('active','done'); dot.textContent = i; }
   }
   for (let i = 1; i <= 3; i++) {
     const line = document.getElementById('step-line-' + i);
     if (line) line.classList.toggle('done', i < step);
   }
+  
   if (step === 4) fillReview();
   STATE.postStep = step;
 }
@@ -2254,41 +2584,30 @@ function fillReview() {
   document.getElementById('rev-deadline').textContent = STATE.postData.deadline;
 }
 
-/* ============================================================
-   ★ SUBMIT JOB — MAIN FIX: chainJobId now saved correctly ★
-   ============================================================ */
 async function submitJob() {
   if (!STATE.wallet) { showToast('error', 'Not Connected', 'Connect wallet first'); return; }
   if (!validateStep(3)) return;
 
   const btn = document.getElementById('submit-job-btn');
   btn.disabled = true;
-
+  
   try {
     const amount = ethers.parseUnits(STATE.postData.budget.toString(), USDC_DECIMALS);
     const deadlineTs = Math.floor(new Date(STATE.postData.deadline).getTime() / 1000);
 
-    // Step 1: Check & approve USDC
-    showSpinner('Checking USDC allowance...');
-    let allowance;
-    try {
-      allowance = await STATE.usdcContract.allowance(STATE.wallet, CONTRACT_ADDRESS);
-    } catch(e) {
-      allowance = BigInt(0);
-    }
-
+    // Check & approve USDC
+    showSpinner('Approving USDC...');
+    const allowance = await STATE.usdcContract.allowance(STATE.wallet, CONTRACT_ADDRESS);
     if (allowance < amount) {
-      showSpinner('Approving USDC...');
-      showToast('loading', 'Approve USDC', 'Confirm approval in your wallet');
+      showToast('loading', 'Approve USDC', 'Confirm in your wallet');
       const approveTx = await STATE.usdcContract.approve(CONTRACT_ADDRESS, amount);
       await approveTx.wait();
       showToast('success', 'USDC Approved', '');
     }
 
-    // Step 2: Create job on-chain
+    // Create job on-chain
     showSpinner('Creating job on-chain...');
-    showToast('loading', 'Creating Job', 'Confirm transaction in your wallet');
-
+    showToast('loading', 'Creating Job', 'Confirm in your wallet');
     const tx = await STATE.contract.createJob(
       STATE.postData.freelancer,
       amount,
@@ -2298,37 +2617,7 @@ async function submitJob() {
     const receipt = await tx.wait();
     const txHash = receipt.hash;
 
-    // ── FIX: Extract chainJobId from transaction receipt ──────────────────
-    let chainJobId = null;
-
-    // Method 1: Parse JobCreated event from receipt logs
-    try {
-      const iface = new ethers.Interface(CONTRACT_ABI);
-      for (const log of receipt.logs) {
-        try {
-          const parsed = iface.parseLog({ topics: log.topics, data: log.data });
-          if (parsed && parsed.name === 'JobCreated') {
-            chainJobId = parsed.args[0].toString();
-            break;
-          }
-        } catch(e) {}
-      }
-    } catch(e) {}
-
-    // Method 2: If event parsing failed, get last job from contract
-    if (chainJobId === null) {
-      try {
-        const clientJobs = await STATE.contract.getClientJobs(STATE.wallet);
-        if (clientJobs && clientJobs.length > 0) {
-          chainJobId = clientJobs[clientJobs.length - 1].toString();
-        }
-      } catch(e) {
-        console.warn('Could not get chainJobId from contract:', e.message);
-      }
-    }
-    // ──────────────────────────────────────────────────────────────────────
-
-    // Step 3: Save to Firebase WITH the real chainJobId
+    // Save to Firebase
     const fbId = await fbAdd('jobs', {
       title: STATE.postData.title,
       description: STATE.postData.desc,
@@ -2339,10 +2628,10 @@ async function submitJob() {
       deadline: STATE.postData.deadline,
       status: 'open',
       txHash,
-      chainJobId: chainJobId   // ← was always null before, now real ID
+      chainJobId: null
     });
 
-    // Step 4: Record transaction
+    // Add to local activity
     await fbAdd('transactions', {
       wallet: STATE.wallet.toLowerCase(),
       label: 'Job Created: ' + STATE.postData.title,
@@ -2353,8 +2642,7 @@ async function submitJob() {
     });
 
     hideSpinner();
-    showToast('success', 'Job Deployed!', chainJobId ? 'Chain ID: #' + chainJobId : txHash.slice(0,18) + '...');
-    btn.disabled = false;
+    showToast('success', 'Job Deployed', txHash.slice(0,18) + '...');
     await loadJobs();
     navigate('jobs');
   } catch(e) {
@@ -2365,7 +2653,7 @@ async function submitJob() {
 }
 
 /* ============================================================
-   JOB ACTIONS — All fixed to use real chainJobId
+   JOB ACTIONS
    ============================================================ */
 function openSubmitWork(jobId) {
   STATE.currentJobId = jobId;
@@ -2376,22 +2664,21 @@ function openSubmitWork(jobId) {
 
 async function doSubmitWork() {
   const link = document.getElementById('work-link').value.trim();
+  const notes = document.getElementById('work-notes').value.trim();
   if (!link) { showToast('error', 'Missing Link', 'Enter a work link'); return; }
   closeModal('submit-work-modal');
   showSpinner('Submitting work...');
   try {
-    const job = STATE.jobs.find(j => j.id === STATE.currentJobId);
-    if (!job) throw new Error('Job not found');
-
-    // ── FIX: Call contract if chainJobId exists ──
-    if (job.chainJobId !== null && job.chainJobId !== undefined) {
-      showToast('loading', 'Submitting Work', 'Confirm in your wallet');
+    const jobFirebaseId = STATE.currentJobId;
+    const job = STATE.jobs.find(j => j.id === jobFirebaseId);
+    const updateData = { status: 'submitted', workLink: link, workNotes: notes };
+    if (!job || !job.chainJobId) {
+      await fbUpdate('jobs', jobFirebaseId, updateData);
+    } else {
       const tx = await STATE.contract.submitWork(job.chainJobId, link);
       await tx.wait();
+      await fbUpdate('jobs', jobFirebaseId, updateData);
     }
-    // Always update Firebase regardless
-    await fbUpdate('jobs', job.id, { status: 'submitted', workLink: link });
-
     await loadJobs();
     hideSpinner();
     showToast('success', 'Work Submitted', 'Client will review your submission');
@@ -2416,11 +2703,7 @@ async function doRaiseDispute() {
   showSpinner('Raising dispute...');
   try {
     const job = STATE.jobs.find(j => j.id === STATE.currentJobId);
-    if (!job) throw new Error('Job not found');
-
-    // ── FIX: Call contract if chainJobId exists ──
-    if (job.chainJobId !== null && job.chainJobId !== undefined) {
-      showToast('loading', 'Raising Dispute', 'Confirm in your wallet');
+    if (job && job.chainJobId) {
       const tx = await STATE.contract.raiseDispute(job.chainJobId);
       await tx.wait();
     }
@@ -2440,49 +2723,23 @@ async function doRaiseDispute() {
   }
 }
 
-/* ============================================================
-   ★ APPROVE — THE CORE PAYMENT FIX ★
-   ============================================================ */
 async function doApprove(jobId) {
-  const job = STATE.jobs.find(j => j.id === jobId);
-  if (!job) { showToast('error', 'Job not found', ''); return; }
-
-  // ── WARN if no chainJobId ──
-  if (job.chainJobId === null || job.chainJobId === undefined) {
-    showToast('error', 'Chain ID Missing',
-      'This job has no on-chain ID. Payment cannot be released via contract.');
-    return;
-  }
-
-  showSpinner('Releasing payment to freelancer...');
+  showSpinner('Releasing payment...');
   try {
-    showToast('loading', 'Releasing Payment', 'Confirm in your wallet');
-
-    // ── FIX: This now actually runs because chainJobId is real ──
-    const tx = await STATE.contract.approveAndRelease(job.chainJobId);
-    const receipt = await tx.wait();
-
-    await fbUpdate('jobs', jobId, {
-      status: 'completed',
-      completedAt: new Date().toISOString(),
-      releaseTxHash: receipt.hash
-    });
-
-    // Record earning for freelancer
-    await fbAdd('transactions', {
-      wallet: job.freelancer.toLowerCase(),
-      label: 'Payment Received: ' + (job.title || 'Job'),
-      amount: job.amount,
-      type: 'in',
-      txHash: receipt.hash,
-      date: new Date().toISOString()
-    });
-
+    const job = STATE.jobs.find(j => j.id === jobId);
+    if (job && job.chainJobId) {
+      const tx = await STATE.contract.approveAndRelease(job.chainJobId);
+      const receipt = await tx.wait();
+      await fbUpdate('jobs', jobId, { status: 'completed', txHash: receipt.hash });
+    } else {
+      await fbUpdate('jobs', jobId, { status: 'completed' });
+    }
     await loadJobs();
     await loadUSDCBalance();
     hideSpinner();
-    showToast('success', 'Payment Released!',
-      '$' + job.amount + ' USDC sent to freelancer');
+    showToast('success', 'Payment Released', 'Freelancer has been paid');
+    // Remove completed job from view immediately
+    STATE.jobs = STATE.jobs.map(j => j.id === jobId ? {...j, status:'completed'} : j);
     if (STATE.currentPage === 'jobs') loadJobsPage();
     if (STATE.currentPage === 'home') loadHomePage();
   } catch(e) {
@@ -2492,22 +2749,15 @@ async function doApprove(jobId) {
 }
 
 async function doCancelJob(jobId) {
-  const job = STATE.jobs.find(j => j.id === jobId);
-  if (!job) return;
-  if (!confirm('Cancel this job? Funds will be returned to your wallet.')) return;
-
+  if (!confirm('Cancel this job? Funds will be returned.')) return;
   showSpinner('Cancelling job...');
   try {
-    // ── FIX: Call contract if chainJobId exists ──
-    if (job.chainJobId !== null && job.chainJobId !== undefined) {
-      showToast('loading', 'Cancelling Job', 'Confirm in your wallet');
+    const job = STATE.jobs.find(j => j.id === jobId);
+    if (job && job.chainJobId) {
       const tx = await STATE.contract.cancelJob(job.chainJobId);
       await tx.wait();
     }
-    await fbUpdate('jobs', jobId, {
-      status: 'cancelled',
-      cancelledAt: new Date().toISOString()
-    });
+    await fbUpdate('jobs', jobId, { status: 'cancelled' });
     await loadJobs();
     await loadUSDCBalance();
     hideSpinner();
@@ -2525,22 +2775,24 @@ async function doCancelJob(jobId) {
    ============================================================ */
 async function loadWalletPage() {
   await loadUSDCBalance();
+  
   const addr = STATE.wallet || '';
   document.getElementById('wallet-addr-short').textContent = addr ? (addr.slice(0,6) + '...' + addr.slice(-4)) : '—';
   document.getElementById('receive-addr').textContent = addr || '—';
+
   loadTxHistory();
 }
 
 async function loadTxHistory() {
   const el = document.getElementById('tx-history');
-  if (!STATE.wallet) {
-    el.innerHTML = '<p class="text-muted" style="font-size:13px;padding:12px">Connect wallet to view history</p>';
-    return;
-  }
+  if (!STATE.wallet) { el.innerHTML = '<p class="text-muted" style="font-size:13px;padding:12px">Connect wallet to view history</p>'; return; }
+  
   try {
     const txs = await fbQuery('transactions', 'wallet', STATE.wallet.toLowerCase());
     if (!txs.length) {
-      el.innerHTML = `<div class="empty-state" style="padding:24px"><p class="empty-sub">No transactions yet</p></div>`;
+      el.innerHTML = `<div class="empty-state" style="padding:24px">
+        <p class="empty-sub">No transactions yet</p>
+      </div>`;
       return;
     }
     el.innerHTML = txs.slice(0,10).map(tx => renderTxItem(tx)).join('');
@@ -2575,20 +2827,23 @@ async function doSendUSDC() {
   const amount = document.getElementById('send-amount').value.trim();
   if (!ethers.isAddress(to)) { showToast('error', 'Invalid Address', 'Enter a valid recipient address'); return; }
   if (!amount || parseFloat(amount) <= 0) { showToast('error', 'Invalid Amount', 'Enter an amount greater than 0'); return; }
+  
   closeModal('send-modal');
   showSpinner('Sending USDC...');
   try {
     const parsedAmount = ethers.parseUnits(amount, USDC_DECIMALS);
     const tx = await STATE.usdcContract.transfer(to, parsedAmount);
     const receipt = await tx.wait();
+    
     await fbAdd('transactions', {
       wallet: STATE.wallet.toLowerCase(),
-      label: 'Sent USDC to ' + to.slice(0,8) + '...',
+      label: 'Sent USDC',
       amount: '-' + amount,
       type: 'out',
       txHash: receipt.hash,
       date: new Date().toISOString()
     });
+
     await loadUSDCBalance();
     hideSpinner();
     showToast('success', 'USDC Sent', receipt.hash.slice(0,18) + '...');
@@ -2610,8 +2865,9 @@ async function loadDisputesPage() {
   await loadJobs();
   const disputed = STATE.jobs.filter(j => j.status === 'disputed');
   const resolved = STATE.jobs.filter(j => j.status === 'resolved');
+  
   document.getElementById('dispute-count').textContent = disputed.length + ' active';
-
+  
   const list = document.getElementById('disputes-list');
   if (!disputed.length) {
     list.innerHTML = `<div class="empty-state">
@@ -2623,10 +2879,12 @@ async function loadDisputesPage() {
     list.innerHTML = disputed.map(j => renderDisputeCard(j)).join('');
     startDisputeTimers();
   }
-
+  
   const resolvedList = document.getElementById('resolved-list');
   if (!resolved.length) {
-    resolvedList.innerHTML = `<div class="empty-state"><p class="empty-sub">No resolved disputes yet</p></div>`;
+    resolvedList.innerHTML = `<div class="empty-state">
+      <p class="empty-sub">No resolved disputes yet</p>
+    </div>`;
   } else {
     resolvedList.innerHTML = resolved.map(j => renderDisputeCard(j, true)).join('');
   }
@@ -2669,7 +2927,6 @@ function startDisputeTimers() {
 
 function updateTimer(el, end) {
   const update = () => {
-    if (!document.body.contains(el)) return; // stop if removed from DOM
     const left = end - Date.now();
     if (left <= 0) { el.textContent = 'Voting ended'; return; }
     const h = Math.floor(left / 3600000);
@@ -2692,16 +2949,12 @@ async function doVote(voteForFreelancer) {
   showSpinner('Recording your vote...');
   try {
     const job = STATE.jobs.find(j => j.id === STATE.currentJobId);
-    if (!job) throw new Error('Job not found');
-
-    // ── FIX: Call contract if chainJobId exists ──
-    if (job.chainJobId !== null && job.chainJobId !== undefined) {
-      showToast('loading', 'Casting Vote', 'Confirm in your wallet');
+    if (job && job.chainJobId) {
       const tx = await STATE.contract.castVote(job.chainJobId, voteForFreelancer);
       await tx.wait();
     }
     hideSpinner();
-    showToast('success', 'Vote Recorded', 'Your vote has been cast');
+    showToast('success', 'Vote Recorded', 'Your vote is on-chain');
     loadDisputesPage();
   } catch(e) {
     hideSpinner();
@@ -2717,19 +2970,18 @@ async function loadProfilePage() {
   document.getElementById('profile-avatar').textContent = addr ? addr.slice(2,3).toUpperCase() : '?';
   document.getElementById('profile-name').textContent = addr ? shortAddr(addr) : 'Anonymous';
   document.getElementById('profile-addr').textContent = addr || 'Not connected';
-
+  
   const completed = STATE.jobs.filter(j => j.status === 'completed');
-  const earned = completed
-    .filter(j => j.freelancer?.toLowerCase() === addr.toLowerCase())
+  const earned = completed.filter(j => j.freelancer?.toLowerCase() === addr.toLowerCase())
     .reduce((s, j) => s + parseFloat(j.amount || 0), 0);
   const total = STATE.jobs.length;
   const rate = total > 0 ? Math.round((completed.length / total) * 100) : 0;
-
+  
   document.getElementById('profile-earned').textContent = '$' + earned.toFixed(0);
   document.getElementById('profile-jobs').textContent = completed.length;
   document.getElementById('profile-rate').textContent = rate + '%';
   document.getElementById('profile-disputes-won').textContent = 0;
-
+  
   loadSkillsFromFirebase();
   renderEarningsChart();
 }
@@ -2775,15 +3027,14 @@ function confirmAddSkill() {
 }
 
 async function saveSkills() {
-  const skills = [...document.querySelectorAll('#profile-skills .skill-tag')]
-    .map(el => el.textContent.replace(' ×','').trim());
+  const skills = [...document.querySelectorAll('#profile-skills .skill-tag')].map(el => el.textContent.replace(' ×','').trim());
   if (STATE.wallet) await fbSet('users', STATE.wallet.toLowerCase(), { skills });
 }
 
 function renderEarningsChart() {
   const months = ['Jan','Feb','Mar','Apr','May','Jun'];
   const data = [0,0,0,0,0,0];
-
+  
   STATE.jobs.filter(j => j.status === 'completed').forEach(j => {
     const d = j.updatedAt ? new Date(j.updatedAt.seconds * 1000) : new Date();
     const m = d.getMonth();
@@ -2791,24 +3042,24 @@ function renderEarningsChart() {
     const idx = m - (now - 5);
     if (idx >= 0 && idx < 6) data[idx] += parseFloat(j.amount || 0);
   });
-
+  
   const max = Math.max(...data, 100);
   const w = 300; const h = 100; const barW = 36; const gap = 10;
   const totalW = months.length * (barW + gap) - gap;
   const startX = (w - totalW) / 2;
-
+  
   let bars = '';
   months.forEach((m, i) => {
     const x = startX + i * (barW + gap);
-    const barH = Math.max(2, Math.round((data[i] / max) * 70));
-    const y = h - 24 - (data[i] > 0 ? barH : 0);
-    bars += `<rect x="${x}" y="${y}" width="${barW}" height="${data[i] > 0 ? barH : 2}" rx="4" fill="url(#barGrad)"/>`;
+    const barH = Math.round((data[i] / max) * 70);
+    const y = h - 24 - barH;
+    bars += `<rect x="${x}" y="${y}" width="${barW}" height="${barH}" rx="4" fill="url(#barGrad)" class="chart-bar"/>`;
     bars += `<text x="${x + barW/2}" y="${h - 6}" text-anchor="middle" font-size="10" fill="#64748b" font-family="Inter">${m}</text>`;
     if (data[i] > 0) {
       bars += `<text x="${x + barW/2}" y="${y - 4}" text-anchor="middle" font-size="9" fill="#10b981" font-family="Space Mono">$${Math.round(data[i])}</text>`;
     }
   });
-
+  
   document.getElementById('earnings-chart').innerHTML = `
     <svg viewBox="0 0 ${w} ${h}" width="100%" height="${h}">
       <defs>
@@ -2834,7 +3085,6 @@ async function loadExplorePage() {
     STATE.freelancers = await fbGetAll('users');
     renderFreelancers();
   } catch(e) {
-    STATE.freelancers = [];
     renderFreelancers();
   }
 }
@@ -2842,7 +3092,7 @@ async function loadExplorePage() {
 function renderFreelancers() {
   const search = document.getElementById('explore-search')?.value.toLowerCase() || '';
   let list = STATE.freelancers.filter(u => u.address && u.address.toLowerCase() !== (STATE.wallet || '').toLowerCase());
-
+  
   if (STATE.exploreFilter) {
     list = list.filter(u => u.skills && u.skills.some(s => s === STATE.exploreFilter));
   }
@@ -2877,7 +3127,9 @@ function renderFreelancerCard(u) {
     <div class="fl-avatar">${letter}</div>
     <div class="fl-name">${u.name || shortAddr(addr)}</div>
     <div class="fl-addr">${shortAddr(addr)}</div>
-    <div class="fl-skills">${skills.map(s => `<span class="fl-skill">${escHtml(s)}</span>`).join('')}</div>
+    <div class="fl-skills">
+      ${skills.map(s => `<span class="fl-skill">${escHtml(s)}</span>`).join('')}
+    </div>
     <div class="flex items-center justify-between mt-8">
       <div class="stars">${stars}</div>
       <span style="font-size:11px;color:var(--text-muted)">${u.jobsDone || 0} jobs</span>
@@ -2900,7 +3152,9 @@ function hireFreelancer(addr) {
   navigate('post');
 }
 
-function searchFreelancers() { renderFreelancers(); }
+function searchFreelancers() {
+  renderFreelancers();
+}
 
 function setExploreFilter(cat, el) {
   document.querySelectorAll('.filter-chip').forEach(c => c.classList.remove('active'));
@@ -2994,6 +3248,29 @@ function closeDropdown() {
 }
 
 /* ============================================================
+   PARTICLES
+   ============================================================ */
+function generateParticles() {
+  const container = document.getElementById('auth-particles');
+  if (!container) return;
+  const colors = ['#3b82f6','#06b6d4','#8b5cf6','#10b981'];
+  for (let i = 0; i < 18; i++) {
+    const p = document.createElement('div');
+    p.className = 'particle';
+    const size = Math.random() * 6 + 2;
+    p.style.cssText = `
+      width:${size}px;height:${size}px;
+      left:${Math.random()*100}%;
+      background:${colors[Math.floor(Math.random()*colors.length)]};
+      animation-duration:${Math.random()*12+8}s;
+      animation-delay:${Math.random()*8}s;
+      opacity:0;
+    `;
+    container.appendChild(p);
+  }
+}
+
+/* ============================================================
    UTILS
    ============================================================ */
 function shortAddr(addr) {
@@ -3010,11 +3287,7 @@ function capFirst(str) {
 }
 
 function badgeClass(status) {
-  const m = {
-    open:'badge badge-open', submitted:'badge badge-submitted',
-    completed:'badge badge-completed', disputed:'badge badge-disputed',
-    resolved:'badge badge-resolved', cancelled:'badge badge-cancelled'
-  };
+  const m = { open:'badge badge-open', submitted:'badge badge-submitted', completed:'badge badge-completed', disputed:'badge badge-disputed', resolved:'badge badge-resolved', cancelled:'badge badge-cancelled' };
   return m[status] || 'badge badge-open';
 }
 
@@ -3036,60 +3309,88 @@ function timeAgo(ms) {
 function copyAddress() {
   const addr = STATE.wallet || '';
   if (!addr) return;
-  navigator.clipboard.writeText(addr).then(() =>
-    showToast('success', 'Copied!', addr.slice(0,12) + '...')
-  );
+  navigator.clipboard.writeText(addr).then(() => showToast('success', 'Copied', addr.slice(0,12) + '...'));
 }
 
 function handleTxError(e) {
-  console.error('TX Error:', e);
   if (e.code === 4001 || (e.message && e.message.includes('rejected'))) {
-    showToast('error', 'Rejected', 'Transaction was rejected by wallet');
+    showToast('error', 'Rejected', 'Transaction was rejected');
   } else if (e.message && e.message.includes('insufficient')) {
-    showToast('error', 'Insufficient Funds', 'Not enough USDC balance');
-  } else if (e.message && e.message.includes('already voted')) {
-    showToast('error', 'Already Voted', 'You have already cast your vote');
+    showToast('error', 'Insufficient Funds', 'Not enough balance');
   } else {
     showToast('error', 'Transaction Failed', e.shortMessage || e.message?.slice(0,60) || 'Unknown error');
   }
 }
 
 /* ============================================================
-   WALLET EVENT LISTENERS (single attachment)
-   ============================================================ */
-function attachWalletListeners() {
-  if (!window.ethereum || window._fs_listeners_attached) return;
-  window._fs_listeners_attached = true;
-
-  window.ethereum.on('accountsChanged', async (accounts) => {
-    if (accounts.length) {
-      if (STATE.provider) {
-        STATE.wallet = accounts[0];
-        STATE.signer = await STATE.provider.getSigner();
-        STATE.contract = new ethers.Contract(CONTRACT_ADDRESS, CONTRACT_ABI, STATE.signer);
-        STATE.usdcContract = new ethers.Contract(USDC_ADDRESS, USDC_ABI, STATE.signer);
-        localStorage.setItem('fs_wallet', accounts[0]);
-        STATE.user = { address: accounts[0], name: shortAddr(accounts[0]) };
-        await loadUSDCBalance();
-        await loadAllData();
-        showToast('success', 'Account Changed', shortAddr(accounts[0]));
-      }
-    } else {
-      signOut();
-    }
-  });
-
-  window.ethereum.on('chainChanged', () => {
-    window.location.reload();
-  });
-}
-
-/* ============================================================
    INIT ON LOAD
    ============================================================ */
+async function aiGenerateDesc() {
+  const title = document.getElementById('job-title').value.trim();
+  const cat = document.querySelector('.cat-chip.selected')?.dataset.val || 'Development';
+  if (!title) { showToast('error', 'Add Title First', 'Enter a job title before generating'); return; }
+
+  document.getElementById('ai-gen-status').style.display = 'block';
+  document.getElementById('job-desc').disabled = true;
+
+  try {
+    const resp = await fetch('https://api.anthropic.com/v1/messages', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({
+        model: 'claude-sonnet-4-20250514',
+        max_tokens: 300,
+        messages: [{
+          role: 'user',
+          content: `Write a professional freelance job description for: "${title}" in category: ${cat}.
+          Format: 3-4 sentences covering scope, deliverables, and requirements.
+          Be specific and professional. No bullet points. Plain paragraph only.`
+        }]
+      })
+    });
+    const data = await resp.json();
+    const text = data.content?.[0]?.text || '';
+    if (text) {
+      document.getElementById('job-desc').value = text.trim();
+      showToast('success', 'AI Generated', 'Description written successfully');
+    } else {
+      showToast('error', 'AI Failed', 'Could not generate description');
+    }
+  } catch(e) {
+    showToast('error', 'AI Error', 'Check your connection');
+  } finally {
+    document.getElementById('ai-gen-status').style.display = 'none';
+    document.getElementById('job-desc').disabled = false;
+  }
+}
+
 window.addEventListener('DOMContentLoaded', () => {
   initApp();
-  attachWalletListeners();
+});
+
+window.ethereum?.on('accountsChanged', async (accounts) => {
+  if (accounts.length) {
+    // Re-setup with existing provider
+    if (STATE.provider) {
+      STATE.wallet = accounts[0];
+      STATE.signer = await STATE.provider.getSigner();
+      STATE.contract = new ethers.Contract(CONTRACT_ADDRESS, CONTRACT_ABI, STATE.signer);
+      STATE.usdcContract = new ethers.Contract(USDC_ADDRESS, USDC_ABI, STATE.signer);
+      localStorage.setItem('fs_wallet', accounts[0]);
+      STATE.user = { address: accounts[0], name: shortAddr(accounts[0]) };
+      await loadUSDCBalance();
+      await loadAllData();
+      showToast('success', 'Account Changed', shortAddr(accounts[0]));
+    } else {
+      await connectMetaMask();
+    }
+  } else {
+    signOut();
+  }
+});
+
+window.ethereum?.on('chainChanged', () => {
+  window.location.reload();
 });
 </script>
 </body>
