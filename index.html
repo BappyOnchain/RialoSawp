@@ -710,12 +710,12 @@ textarea.form-input { resize: vertical; min-height: 100px; line-height: 1.6; }
 }
 
 .job-card {
-  background: var(--bg-card);
-  border: 1px solid var(--border);
-  border-radius: var(--radius-card);
-  padding: 18px;
-  margin-bottom: 12px;
-  transition: all 0.2s;
+  background: #161616;
+  border: 1px solid #222;
+  border-radius: 18px;
+  padding: 20px;
+  margin-bottom: 14px;
+  transition: all 0.25s;
   position: relative;
   overflow: hidden;
 }
@@ -727,7 +727,21 @@ textarea.form-input { resize: vertical; min-height: 100px; line-height: 1.6; }
   background:#CCFF00;
   border-radius:3px 0 0 3px;
 }
-.job-card:active { opacity: 0.85; }
+.job-card:hover { border-color:#2a2a2a; transform:translateY(-1px); box-shadow:0 8px 32px rgba(0,0,0,0.4); }
+.job-card:active { opacity:0.9; transform:scale(0.99); }
+
+.job-card-top { display:flex; align-items:flex-start; justify-content:space-between; gap:12px; margin-bottom:10px; }
+.job-card-info { flex:1; min-width:0; }
+.job-card-amount { text-align:right; flex-shrink:0; }
+.job-amount-value { font-family:var(--font-mono); font-size:18px; font-weight:700; color:#CCFF00; display:block; }
+.job-amount-label { font-size:10px; color:#555; text-transform:uppercase; letter-spacing:0.06em; }
+.job-card-title { font-family:var(--font-head); font-size:16px; font-weight:700; color:#fff; margin-bottom:4px; line-height:1.3; }
+.job-card-category { font-size:11px; color:#CCFF00; font-weight:600; text-transform:uppercase; letter-spacing:0.08em; margin-bottom:8px; }
+.job-card-desc { font-size:13px; color:#666; line-height:1.6; overflow:hidden; display:-webkit-box; -webkit-line-clamp:2; -webkit-box-orient:vertical; margin-bottom:14px; }
+.job-card-footer { display:flex; align-items:center; justify-content:space-between; gap:8px; }
+.job-card-meta { display:flex; align-items:center; gap:10px; }
+.job-meta-item { display:flex; align-items:center; gap:4px; font-size:11px; color:#555; }
+.job-card-actions { display:flex; gap:8px; }
 
 .job-card-header { display: flex; justify-content: space-between; align-items: flex-start; gap: 8px; margin-bottom: 10px; }
 .job-title { font-family: var(--font-head); font-size: 15px; font-weight: 600; color: var(--text-primary); flex: 1; }
@@ -1444,7 +1458,7 @@ textarea.form-input { resize: vertical; min-height: 100px; line-height: 1.6; }
         <div class="flex flex-col gap-16">
           <div class="form-group">
             <label class="form-label">Job Title</label>
-            <input type="text" class="form-input" id="job-title" placeholder="e.g. Build Uniswap V3 clone UI" maxlength="100"/>
+            <input type="text" class="form-input" id="job-title" placeholder="e.g. Build Uniswap V3 clone UI" maxlength="100" oninput="autoFillOnTitle(this.value)"/>
           </div>
           <div class="form-group">
             <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:6px;">
@@ -1486,7 +1500,20 @@ textarea.form-input { resize: vertical; min-height: 100px; line-height: 1.6; }
         <p class="step-sublabel">Set payment and assign a freelancer</p>
         <div class="flex flex-col gap-16">
           <div class="form-group">
-            <label class="form-label">Budget (USDC)</label>
+            <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:6px;">
+              <label class="form-label" style="margin-bottom:0">Budget (USDC)</label>
+              <button type="button" onclick="aiSuggestPrice()"
+                style="display:flex;align-items:center;gap:5px;padding:4px 10px;
+                       border-radius:6px;background:rgba(204,255,0,0.1);
+                       border:1px solid rgba(204,255,0,0.3);cursor:pointer;
+                       font-size:11px;font-weight:600;color:#CCFF00;">
+                <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                  <circle cx="12" cy="12" r="10"/><path d="M12 8v4l3 3"/>
+                </svg>
+                AI Suggest
+              </button>
+            </div>
+            <label class="form-label" style="display:none">Budget (USDC)</label>
             <div class="budget-display" id="budget-display">$500</div>
             <input type="range" class="range-input" id="budget-range" min="1" max="10000" value="500" step="1" oninput="updateBudget(this.value)"/>
             <div class="flex justify-between" style="font-size:11px;color:var(--text-muted)"><span>$1</span><span>$10,000</span></div>
@@ -2342,75 +2369,98 @@ function renderJobCard(job) {
   const isClient = job.client && job.client.toLowerCase() === STATE.wallet.toLowerCase();
   const progress = jobProgress(job.status);
   const deadlineTxt = job.deadline ? daysLeft(job.deadline) : '—';
+  const role = isClient ? 'Client' : 'Freelancer';
+  const cat = job.category || 'Development';
 
-  // Work link section — visible to client when work is submitted
+  // Work link box
   let workLinkHtml = '';
   if (job.workLink && isClient && job.status === 'submitted') {
     workLinkHtml = `
-    <div style="background:rgba(204,255,0,0.06);border:1px solid rgba(204,255,0,0.2);
-                border-radius:10px;padding:12px 14px;margin-bottom:12px;">
-      <div style="font-size:11px;color:#64748b;text-transform:uppercase;
-                  letter-spacing:0.06em;margin-bottom:6px;font-weight:600;">
-        Submitted Work
+    <div style="background:rgba(204,255,0,0.05);border:1px solid rgba(204,255,0,0.15);
+                border-radius:12px;padding:14px;margin-bottom:14px;">
+      <div style="display:flex;align-items:center;gap:6px;margin-bottom:10px;">
+        <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="#CCFF00" stroke-width="2.5"><polyline points="20 6 9 17 4 12"/></svg>
+        <span style="font-size:11px;font-weight:700;color:#CCFF00;text-transform:uppercase;letter-spacing:0.08em;">Work Submitted</span>
       </div>
-      <div style="display:flex;align-items:center;gap:8px;">
-        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#CCFF00" stroke-width="2">
-          <path d="M10 13a5 5 0 0 0 7.54.54l3-3a5 5 0 0 0-7.07-7.07l-1.72 1.71"/>
-          <path d="M14 11a5 5 0 0 0-7.54-.54l-3 3a5 5 0 0 0 7.07 7.07l1.71-1.71"/>
-        </svg>
-        <span style="font-size:13px;color:#f0f4f8;flex:1;overflow:hidden;
-                     text-overflow:ellipsis;white-space:nowrap;font-family:var(--font-mono);">
-          ${escHtml(job.workLink)}
-        </span>
+      <div style="display:flex;align-items:center;gap:8px;background:#0f0f0f;border-radius:8px;padding:10px 12px;">
+        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#555" stroke-width="2"><path d="M10 13a5 5 0 0 0 7.54.54l3-3a5 5 0 0 0-7.07-7.07l-1.72 1.71"/><path d="M14 11a5 5 0 0 0-7.54-.54l-3 3a5 5 0 0 0 7.07 7.07l1.71-1.71"/></svg>
+        <span style="flex:1;font-size:12px;color:#888;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;font-family:var(--font-mono);">${escHtml(job.workLink)}</span>
         <a href="${escHtml(job.workLink)}" target="_blank"
-           style="flex-shrink:0;padding:5px 12px;border-radius:6px;
-                  background:#CCFF00;color:#000;font-size:12px;
-                  font-weight:700;text-decoration:none;">
-          Open
-        </a>
+           style="padding:5px 14px;border-radius:7px;background:#CCFF00;color:#000;
+                  font-size:12px;font-weight:700;text-decoration:none;flex-shrink:0;">Open</a>
       </div>
-      ${job.workNotes ? `<p style="font-size:12px;color:#94a3b8;margin-top:8px;line-height:1.5;">${escHtml(job.workNotes)}</p>` : ''}
+      ${job.workNotes ? `<p style="font-size:12px;color:#555;margin-top:10px;line-height:1.6;padding:0 2px;">${escHtml(job.workNotes)}</p>` : ''}
     </div>`;
   }
 
-  // Freelancer sees their own submitted link
   let myWorkHtml = '';
   if (job.workLink && !isClient && job.status === 'submitted') {
     myWorkHtml = `
-    <div style="background:rgba(16,185,129,0.06);border:1px solid rgba(16,185,129,0.2);
-                border-radius:10px;padding:10px 14px;margin-bottom:12px;
-                font-size:12px;color:#10b981;">
-      Work submitted — awaiting client review
+    <div style="display:flex;align-items:center;gap:8px;background:rgba(16,185,129,0.06);
+                border:1px solid rgba(16,185,129,0.15);border-radius:10px;
+                padding:10px 14px;margin-bottom:14px;">
+      <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#10b981" stroke-width="2"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg>
+      <span style="font-size:12px;color:#10b981;font-weight:500;">Awaiting client review</span>
     </div>`;
   }
 
+  // Action buttons
   let actions = '';
   if (job.status === 'open' && !isClient) {
-    actions += `<button class="btn btn-primary btn-sm" onclick="openSubmitWork('${job.id}')">Submit Work</button>`;
+    actions = `<button class="btn btn-primary btn-sm" onclick="openSubmitWork('${job.id}')">
+      <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><line x1="22" y1="2" x2="11" y2="13"/><polygon points="22 2 15 22 11 13 2 9 22 2"/></svg>
+      Submit Work
+    </button>`;
   }
   if (job.status === 'submitted' && isClient) {
-    actions += `<button class="btn btn-success btn-sm" onclick="doApprove('${job.id}')">Approve &amp; Release</button>`;
-    actions += `<button class="btn btn-danger btn-sm" onclick="openDispute('${job.id}')">Dispute</button>`;
+    actions = `
+    <button class="btn btn-success btn-sm" onclick="doApprove('${job.id}')">
+      <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="20 6 9 17 4 12"/></svg>
+      Approve &amp; Release
+    </button>
+    <button class="btn btn-danger btn-sm" onclick="openDispute('${job.id}')">
+      <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M10.29 3.86 1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z"/></svg>
+      Dispute
+    </button>`;
   }
   if (job.status === 'open' && isClient) {
-    actions += `<button class="btn btn-ghost btn-sm" onclick="doCancelJob('${job.id}')">Cancel</button>`;
+    actions = `<button class="btn btn-ghost btn-sm" onclick="doCancelJob('${job.id}')" style="color:#ef4444;border-color:rgba(239,68,68,0.2);">Cancel Job</button>`;
   }
 
   return `<div class="job-card">
-    <div class="job-card-header">
-      <span class="job-title">${escHtml(job.title || 'Untitled Job')}</span>
-      <span class="job-budget">$${parseFloat(job.amount || 0).toFixed(0)}</span>
+    <div class="job-card-top">
+      <div class="job-card-info">
+        <div class="job-card-category">${escHtml(cat)}</div>
+        <div class="job-card-title">${escHtml(job.title || 'Untitled Job')}</div>
+      </div>
+      <div class="job-card-amount">
+        <span class="job-amount-value">$${parseFloat(job.amount || 0).toFixed(0)}</span>
+        <span class="job-amount-label">USDC</span>
+      </div>
     </div>
-    <p class="job-desc">${escHtml(job.description || '')}</p>
-    <div class="job-meta">
-      <span class="${badgeClass(job.status)}">${capFirst(job.status || 'open')}</span>
-      <span>${deadlineTxt}</span>
-      <span>${isClient ? 'Client' : 'Freelancer'}</span>
+
+    <p class="job-card-desc">${escHtml(job.description || '')}</p>
+
+    <div style="height:3px;background:#1e1e1e;border-radius:2px;overflow:hidden;margin-bottom:14px;">
+      <div style="height:100%;width:${progress}%;background:#CCFF00;border-radius:2px;transition:width 0.5s;"></div>
     </div>
-    <div class="progress-bar"><div class="progress-fill" style="width:${progress}%"></div></div>
+
     ${workLinkHtml}
     ${myWorkHtml}
-    ${actions ? `<div class="job-actions">${actions}</div>` : ''}
+
+    <div class="job-card-footer">
+      <div class="job-card-meta">
+        <span class="${badgeClass(job.status)}">${capFirst(job.status || 'open')}</span>
+        <span class="job-meta-item">
+          <svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg>
+          ${deadlineTxt}
+        </span>
+        <span class="job-meta-item" style="color:${isClient ? '#CCFF00' : '#3b82f6'};">
+          ${role}
+        </span>
+      </div>
+      ${actions ? `<div class="job-card-actions">${actions}</div>` : ''}
+    </div>
   </div>`;
 }
 
@@ -2598,7 +2648,7 @@ async function submitJob() {
     // Check & approve USDC
     showSpinner('Approving USDC...');
     const allowance = await STATE.usdcContract.allowance(STATE.wallet, CONTRACT_ADDRESS);
-    if (allowance < amount) {
+    if (BigInt(allowance.toString()) < BigInt(amount.toString())) {
       showToast('loading', 'Approve USDC', 'Confirm in your wallet');
       const approveTx = await STATE.usdcContract.approve(CONTRACT_ADDRESS, amount);
       await approveTx.wait();
@@ -2617,6 +2667,34 @@ async function submitJob() {
     const receipt = await tx.wait();
     const txHash = receipt.hash;
 
+    // Get chainJobId from receipt logs using multiple strategies
+    let chainJobId = null;
+    try {
+      // Strategy 1: parse return value if contract returns jobId
+      // Strategy 2: scan all logs for a uint256 topic
+      if (receipt.logs && receipt.logs.length > 0) {
+        for (const log of receipt.logs) {
+          // Skip logs not from our contract
+          if (log.address.toLowerCase() !== CONTRACT_ADDRESS.toLowerCase()) continue;
+          // topic[0] = event sig, topic[1] = first indexed param (jobId)
+          if (log.topics && log.topics.length >= 2) {
+            const parsed = parseInt(log.topics[1], 16);
+            if (!isNaN(parsed) && parsed >= 0 && parsed < 1000000) {
+              chainJobId = parsed.toString();
+              break;
+            }
+          }
+        }
+      }
+      // Strategy 3: if still null, get from getClientJobs
+      if (chainJobId === null) {
+        const ids = await STATE.contract.getClientJobs(STATE.wallet);
+        if (ids.length > 0) {
+          chainJobId = ids[ids.length - 1].toString();
+        }
+      }
+    } catch(_) {}
+
     // Save to Firebase
     const fbId = await fbAdd('jobs', {
       title: STATE.postData.title,
@@ -2628,7 +2706,7 @@ async function submitJob() {
       deadline: STATE.postData.deadline,
       status: 'open',
       txHash,
-      chainJobId: null
+      chainJobId
     });
 
     // Add to local activity
@@ -2672,13 +2750,37 @@ async function doSubmitWork() {
     const jobFirebaseId = STATE.currentJobId;
     const job = STATE.jobs.find(j => j.id === jobFirebaseId);
     const updateData = { status: 'submitted', workLink: link, workNotes: notes };
-    if (!job || !job.chainJobId) {
-      await fbUpdate('jobs', jobFirebaseId, updateData);
-    } else {
-      const tx = await STATE.contract.submitWork(job.chainJobId, link);
-      await tx.wait();
-      await fbUpdate('jobs', jobFirebaseId, updateData);
+    let resolvedChainId = job?.chainJobId;
+
+    // If no chainJobId, try to find from blockchain
+    if (!resolvedChainId && STATE.contract && STATE.wallet) {
+      try {
+        const ids = await STATE.contract.getFreelancerJobs(STATE.wallet);
+        if (ids.length > 0) {
+          // Match by client address
+          for (let i = ids.length - 1; i >= 0; i--) {
+            try {
+              const onChainJob = await STATE.contract.getJob(ids[i]);
+              if (job && onChainJob.client &&
+                  onChainJob.client.toLowerCase() === job.client?.toLowerCase()) {
+                resolvedChainId = ids[i].toString();
+                await fbUpdate('jobs', jobFirebaseId, { chainJobId: resolvedChainId });
+                break;
+              }
+            } catch(_) {}
+          }
+          if (!resolvedChainId) resolvedChainId = ids[ids.length - 1].toString();
+        }
+      } catch(_) {}
     }
+
+    if (resolvedChainId && STATE.contract) {
+      showToast('loading', 'Submitting On-chain', 'Confirm in your wallet');
+      const tx = await STATE.contract.submitWork(resolvedChainId, link);
+      await tx.wait();
+      updateData.chainJobId = resolvedChainId;
+    }
+    await fbUpdate('jobs', jobFirebaseId, updateData);
     await loadJobs();
     hideSpinner();
     showToast('success', 'Work Submitted', 'Client will review your submission');
@@ -2727,18 +2829,57 @@ async function doApprove(jobId) {
   showSpinner('Releasing payment...');
   try {
     const job = STATE.jobs.find(j => j.id === jobId);
-    if (job && job.chainJobId) {
+    if (!STATE.contract) {
+      showToast('error', 'Not Connected', 'Connect wallet to approve');
+      hideSpinner();
+      return;
+    }
+    if (job && job.chainJobId !== null && job.chainJobId !== undefined) {
+      // On-chain approval
+      showToast('loading', 'Approving', 'Confirm in your wallet');
       const tx = await STATE.contract.approveAndRelease(job.chainJobId);
       const receipt = await tx.wait();
       await fbUpdate('jobs', jobId, { status: 'completed', txHash: receipt.hash });
+      showToast('success', 'Payment Released', receipt.hash.slice(0,16) + '...');
     } else {
-      await fbUpdate('jobs', jobId, { status: 'completed' });
+      // No chainJobId — find correct on-chain job by matching freelancer
+      try {
+        const job = STATE.jobs.find(j => j.id === jobId);
+        const jobIds = await STATE.contract.getClientJobs(STATE.wallet);
+        let matchedId = null;
+        // Try to match by checking each on-chain job's freelancer address
+        for (let i = jobIds.length - 1; i >= 0; i--) {
+          try {
+            const onChainJob = await STATE.contract.getJob(jobIds[i]);
+            const freelancerMatch = job && onChainJob.freelancer &&
+              onChainJob.freelancer.toLowerCase() === job.freelancer?.toLowerCase();
+            const statusOpen = onChainJob.status === 0 || onChainJob.status === 1; // 0=open,1=submitted
+            if (freelancerMatch && statusOpen) {
+              matchedId = jobIds[i];
+              break;
+            }
+          } catch(_) {}
+        }
+        // Use matched or last job
+        const targetId = matchedId || (jobIds.length > 0 ? jobIds[jobIds.length - 1] : null);
+        if (targetId !== null) {
+          showToast('loading', 'Releasing Payment', 'Confirm in your wallet');
+          const tx = await STATE.contract.approveAndRelease(targetId);
+          const receipt = await tx.wait();
+          await fbUpdate('jobs', jobId, { status: 'completed', chainJobId: targetId.toString(), txHash: receipt.hash });
+          showToast('success', 'Payment Released', receipt.hash.slice(0,16) + '...');
+        } else {
+          await fbUpdate('jobs', jobId, { status: 'completed' });
+          showToast('warning', 'Status Updated', 'No on-chain job found — marked complete');
+        }
+      } catch(err) {
+        await fbUpdate('jobs', jobId, { status: 'completed' });
+        showToast('warning', 'Status Updated', 'Marked as completed');
+      }
     }
     await loadJobs();
     await loadUSDCBalance();
     hideSpinner();
-    showToast('success', 'Payment Released', 'Freelancer has been paid');
-    // Remove completed job from view immediately
     STATE.jobs = STATE.jobs.map(j => j.id === jobId ? {...j, status:'completed'} : j);
     if (STATE.currentPage === 'jobs') loadJobsPage();
     if (STATE.currentPage === 'home') loadHomePage();
@@ -3325,43 +3466,109 @@ function handleTxError(e) {
 /* ============================================================
    INIT ON LOAD
    ============================================================ */
-async function aiGenerateDesc() {
-  const title = document.getElementById('job-title').value.trim();
-  const cat = document.querySelector('.cat-chip.selected')?.dataset.val || 'Development';
-  if (!title) { showToast('error', 'Add Title First', 'Enter a job title before generating'); return; }
-
-  document.getElementById('ai-gen-status').style.display = 'block';
-  document.getElementById('job-desc').disabled = true;
-
-  try {
-    const resp = await fetch('https://api.anthropic.com/v1/messages', {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({
-        model: 'claude-sonnet-4-20250514',
-        max_tokens: 300,
-        messages: [{
-          role: 'user',
-          content: `Write a professional freelance job description for: "${title}" in category: ${cat}.
-          Format: 3-4 sentences covering scope, deliverables, and requirements.
-          Be specific and professional. No bullet points. Plain paragraph only.`
-        }]
-      })
-    });
-    const data = await resp.json();
-    const text = data.content?.[0]?.text || '';
-    if (text) {
-      document.getElementById('job-desc').value = text.trim();
-      showToast('success', 'AI Generated', 'Description written successfully');
-    } else {
-      showToast('error', 'AI Failed', 'Could not generate description');
-    }
-  } catch(e) {
-    showToast('error', 'AI Error', 'Check your connection');
-  } finally {
-    document.getElementById('ai-gen-status').style.display = 'none';
-    document.getElementById('job-desc').disabled = false;
+// ── Template-based auto-generation (no API needed) ──
+const JOB_TEMPLATES = {
+  development: {
+    keywords: ['build','develop','create','code','app','website','dapp','smart contract','frontend','backend','api','web','mobile','solidity','react','node'],
+    prices: [500, 800, 1200, 2000, 3000],
+    templates: [
+      "We are looking for an experienced {cat} professional to {title}. The project requires strong technical skills and attention to detail. Deliverables include fully functional, tested, and documented code. The ideal candidate should have prior experience with similar projects and be available for regular check-ins.",
+      "This project involves {title} with a focus on quality and performance. You will be responsible for planning, implementation, and delivery of all agreed requirements. All source code must be provided upon completion along with deployment instructions.",
+      "We need a skilled developer to {title}. The scope includes initial setup, core feature development, testing, and final deployment. Communication and milestone updates are expected throughout the project timeline."
+    ]
+  },
+  design: {
+    keywords: ['design','logo','ui','ux','graphic','brand','illustration','figma','banner','poster','visual','icon','mockup'],
+    prices: [150, 300, 500, 800, 1500],
+    templates: [
+      "We are seeking a talented designer to {title}. The project requires a creative approach aligned with our brand identity. Deliverables include source files in editable format along with final exports in required sizes. Revisions are expected until full satisfaction.",
+      "Looking for a professional designer to {title}. You will deliver high-quality visual assets that are modern, clean, and on-brand. All files must be provided in vector and raster formats. The timeline for initial concepts is expected within the first few days.",
+      "This design project requires {title}. We expect original creative work with at least two initial concepts for review. Final files should include all working source files and exported assets ready for production use."
+    ]
+  },
+  writing: {
+    keywords: ['write','content','copy','blog','article','whitepaper','documentation','translate','seo','text','script'],
+    prices: [50, 100, 200, 400, 800],
+    templates: [
+      "We need a skilled writer to {title}. The content must be original, well-researched, and written in a professional tone. Deliverables include final drafts with unlimited revisions until approval. SEO optimization and proper formatting are expected.",
+      "Looking for an experienced content creator to {title}. You will produce high-quality written content that engages the target audience and meets our editorial standards. All work must pass plagiarism checks and be delivered in agreed formats.",
+      "This writing project involves {title}. We require clear, concise, and compelling content tailored to our audience. The writer should be available for feedback rounds and willing to incorporate editorial changes."
+    ]
+  },
+  smartcontracts: {
+    keywords: ['solidity','contract','audit','defi','nft','token','erc','dao','escrow','staking','yield','protocol','blockchain'],
+    prices: [1000, 2000, 3500, 5000, 8000],
+    templates: [
+      "We are looking for a Solidity expert to {title}. The contract must be secure, gas-optimized, and fully tested using a standard testing framework. Deliverables include the contract source code, test suite, deployment scripts, and documentation.",
+      "This smart contract project requires {title}. The developer must follow best security practices and provide a thorough code review before delivery. All contracts should be verified on the block explorer and include NatSpec documentation.",
+      "Seeking an experienced blockchain developer to {title}. The scope includes contract architecture, implementation, unit tests, and audit-ready code. Prior experience with similar DeFi or NFT protocols is highly preferred."
+    ]
+  },
+  marketing: {
+    keywords: ['market','promote','social','campaign','growth','community','twitter','discord','telegram','seo','ads','influencer'],
+    prices: [200, 400, 700, 1200, 2500],
+    templates: [
+      "We need a marketing professional to {title}. The campaign should target the right audience and deliver measurable results. Deliverables include a strategy document, execution plan, and performance report at the end of the engagement.",
+      "Looking for an experienced marketer to {title}. You will develop and execute a comprehensive plan to increase visibility and engagement. Regular reporting and transparent communication are required throughout the project.",
+      "This marketing project involves {title}. We expect creative strategies backed by data and a clear understanding of our target market. All assets and reports should be delivered in agreed formats with full transparency."
+    ]
   }
+};
+
+function detectCategory(title) {
+  const t = title.toLowerCase();
+  for (const [cat, data] of Object.entries(JOB_TEMPLATES)) {
+    if (data.keywords.some(k => t.includes(k))) return cat;
+  }
+  return 'development';
+}
+
+function autoGenerateDesc() {
+  const title = document.getElementById('job-title').value.trim();
+  if (!title) { showToast('error', 'Title First', 'Enter a job title first'); return; }
+
+  const cat = detectCategory(title);
+  const data = JOB_TEMPLATES[cat];
+  const template = data.templates[Math.floor(Math.random() * data.templates.length)];
+  const desc = template
+    .replace(/{title}/g, title.toLowerCase())
+    .replace(/{cat}/g, document.querySelector('.cat-chip.selected')?.dataset.val || 'Development');
+
+  document.getElementById('job-desc').value = desc;
+
+  // Auto-select matching category chip
+  const catMap = { development:'Development', design:'Design', writing:'Writing', smartcontracts:'Smart Contracts', marketing:'Marketing' };
+  document.querySelectorAll('.cat-chip').forEach(c => {
+    c.classList.toggle('selected', c.dataset.val === (catMap[cat] || 'Development'));
+  });
+
+  showToast('success', 'Description Ready', 'Generated from your title');
+}
+
+function autoSuggestPrice() {
+  const title = document.getElementById('job-title').value.trim();
+  if (!title) return;
+  const cat = detectCategory(title);
+  const prices = JOB_TEMPLATES[cat].prices;
+  const suggested = prices[Math.floor(prices.length / 2)];
+  document.getElementById('budget-range').value = suggested;
+  document.getElementById('budget-exact').value = suggested;
+  updateBudget(suggested);
+  showToast('success', 'Price Suggested', '$' + suggested + ' USDC recommended');
+}
+
+// Keep these as aliases so buttons still work
+function aiGenerateDesc() { autoGenerateDesc(); }
+function aiSuggestPrice() { autoSuggestPrice(); }
+
+let _titleTimer = null;
+function autoFillOnTitle(val) {
+  clearTimeout(_titleTimer);
+  if (val.length < 5) return;
+  _titleTimer = setTimeout(() => {
+    autoGenerateDesc();
+    autoSuggestPrice();
+  }, 800);
 }
 
 window.addEventListener('DOMContentLoaded', () => {
