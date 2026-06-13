@@ -49,7 +49,7 @@ input,textarea,select{font-family:inherit}
 a{color:inherit;text-decoration:none}
 
 /* ── TOPBAR ── */
-#topbar{position:fixed;top:0;left:0;right:0;height:var(--top);background:rgba(10,10,10,0.95);backdrop-filter:blur(20px);border-bottom:1px solid var(--border);display:none;align-items:center;justify-content:space-between;padding:0 16px;z-index:50}
+#topbar{position:fixed;top:0;left:0;right:0;height:var(--top);background:rgba(8,8,8,0.98);backdrop-filter:blur(24px);border-bottom:1px solid #1a1a1a;display:none;align-items:center;justify-content:space-between;padding:0 16px;z-index:50}
 .tb-logo{display:flex;align-items:center;gap:8px;font-family:var(--head);font-weight:700;font-size:16px}
 .tb-logo img{width:28px;height:28px;border-radius:8px;object-fit:contain}
 .tb-right{display:flex;align-items:center;gap:8px}
@@ -69,7 +69,7 @@ a{color:inherit;text-decoration:none}
 .dd-div{height:1px;background:var(--border)}
 
 /* ── BOTTOM NAV ── */
-#bnav{position:fixed;bottom:0;left:0;right:0;height:var(--nav);background:rgba(10,10,10,0.97);backdrop-filter:blur(24px);border-top:1px solid var(--border);display:none;align-items:flex-start;padding-top:8px;z-index:50}
+#bnav{position:fixed;bottom:0;left:0;right:0;height:var(--nav);background:rgba(8,8,8,0.99);backdrop-filter:blur(28px);border-top:1px solid #1a1a1a;display:none;align-items:flex-start;padding-top:8px;z-index:50}
 .nt{flex:1;display:flex;flex-direction:column;align-items:center;gap:3px;color:var(--text3);transition:color 0.2s;padding:0 4px}
 .nt.active{color:var(--green)}
 .nt-label{font-size:10px;font-weight:500}
@@ -108,7 +108,7 @@ a{color:inherit;text-decoration:none}
 .wm-btn img{width:32px;height:32px;border-radius:8px;object-fit:contain;flex-shrink:0}
 
 /* ── CARDS ── */
-.card{background:var(--bg2);border:1px solid var(--border);border-radius:16px;padding:18px}
+.card{background:var(--bg2);border:1px solid #1e1e1e;border-radius:18px;padding:20px}
 .card-sm{padding:14px}
 
 /* ── BUTTONS ── */
@@ -135,21 +135,21 @@ a{color:inherit;text-decoration:none}
 /* ── FORMS ── */
 .form-group{display:flex;flex-direction:column;gap:6px;margin-bottom:16px}
 .form-label{font-size:12px;font-weight:600;color:var(--text2);text-transform:uppercase;letter-spacing:0.06em}
-.form-input{background:var(--bg);border:1px solid var(--border2);border-radius:10px;padding:13px 14px;color:var(--text);font-size:14px;outline:none;transition:all 0.2s;width:100%}
+.form-input{background:#0d0d0d;border:1px solid #2a2a2a;border-radius:12px;padding:14px 16px;color:var(--text);font-size:14px;outline:none;transition:all 0.2s;width:100%}
 .form-input:focus{border-color:var(--green);box-shadow:0 0 0 3px rgba(204,255,0,0.08)}
 .form-input::placeholder{color:var(--text3)}
 textarea.form-input{resize:vertical;min-height:100px;line-height:1.6}
 
 /* ── HOME ── */
 .stats-row{display:grid;grid-template-columns:repeat(3,1fr);gap:10px;margin-bottom:20px}
-.stat-box{background:var(--bg2);border:1px solid var(--border);border-radius:14px;padding:14px 12px;text-align:center}
+.stat-box{background:var(--bg2);border:1px solid var(--border);border-radius:14px;padding:16px 10px;text-align:center;transition:all 0.2s}
 .stat-val{font-family:var(--head);font-size:19px;font-weight:800;color:var(--text);display:block;margin-bottom:2px}
 .stat-lbl{font-size:10px;color:var(--text3);text-transform:uppercase;letter-spacing:0.06em;font-weight:600}
 .sec-header{display:flex;align-items:center;justify-content:space-between;margin-bottom:14px}
-.sec-title{font-family:var(--head);font-size:16px;font-weight:700}
+.sec-title{font-family:var(--head);font-size:17px;font-weight:800;letter-spacing:-0.3px}
 
 /* ── JOB CARD ── */
-.jcard{background:var(--bg2);border:1px solid var(--border);border-radius:16px;padding:18px;margin-bottom:12px;position:relative;overflow:hidden;transition:all 0.2s}
+.jcard{background:var(--bg2);border:1px solid #1e1e1e;border-radius:18px;padding:20px;margin-bottom:14px;position:relative;overflow:hidden;transition:all 0.25s}
 .jcard::before{content:'';position:absolute;left:0;top:0;bottom:0;width:3px;background:var(--green);border-radius:3px 0 0 3px}
 .jcard:hover{border-color:var(--border2);transform:translateY(-1px);box-shadow:0 8px 32px rgba(0,0,0,0.4)}
 .jcard-top{display:flex;justify-content:space-between;align-items:flex-start;gap:12px;margin-bottom:6px}
@@ -203,7 +203,7 @@ textarea.form-input{resize:vertical;min-height:100px;line-height:1.6}
 .wh-sub{font-size:12px;color:rgba(255,255,255,0.3)}
 .wh-addr{font-family:var(--mono);font-size:11px;color:rgba(255,255,255,0.4);margin-top:16px;display:flex;align-items:center;gap:8px}
 .wallet-actions{display:grid;grid-template-columns:repeat(3,1fr);gap:10px;margin-bottom:20px}
-.wa-btn{background:var(--bg2);border:1px solid var(--border);border-radius:14px;padding:16px 8px;display:flex;flex-direction:column;align-items:center;gap:8px;font-size:12px;font-weight:600;color:var(--text2);cursor:pointer;transition:all 0.2s}
+.wa-btn{background:var(--bg2);border:1px solid #1e1e1e;border-radius:16px;padding:18px 8px;display:flex;flex-direction:column;align-items:center;gap:8px;font-size:12px;font-weight:700;color:var(--text2);cursor:pointer;transition:all 0.2s;font-family:var(--head)}
 .wa-btn:hover{border-color:var(--border2);color:var(--text);background:var(--bg3)}
 .wa-icon{width:40px;height:40px;border-radius:12px;display:flex;align-items:center;justify-content:center}
 .tx-item{display:flex;align-items:center;gap:12px;padding:14px 0;border-bottom:1px solid var(--border)}
@@ -217,7 +217,7 @@ textarea.form-input{resize:vertical;min-height:100px;line-height:1.6}
 .tx-out{color:var(--red)}
 
 /* ── DISPUTES ── */
-.dispute-card{background:var(--bg2);border:1px solid rgba(239,68,68,0.25);border-radius:16px;padding:18px;margin-bottom:12px}
+.dispute-card{background:var(--bg2);border:1px solid rgba(239,68,68,0.2);border-radius:18px;padding:20px;margin-bottom:14px;border-left:3px solid var(--red)}
 .dispute-card.resolved{border-color:var(--border);opacity:0.6}
 .vote-bar{height:8px;border-radius:4px;overflow:hidden;background:var(--bg3);display:flex;margin:12px 0}
 .vb-green{background:var(--teal);transition:width 0.4s}
@@ -228,7 +228,7 @@ textarea.form-input{resize:vertical;min-height:100px;line-height:1.6}
 /* ── PROFILE ── */
 .avatar{width:72px;height:72px;border-radius:50%;background:linear-gradient(135deg,var(--blue),var(--green));display:flex;align-items:center;justify-content:center;font-family:var(--head);font-size:26px;font-weight:800;color:#000;flex-shrink:0}
 .profile-stats{display:grid;grid-template-columns:repeat(2,1fr);gap:10px;margin:16px 0}
-.ps-box{background:var(--bg3);border-radius:12px;padding:14px}
+.ps-box{background:#111;border:1px solid #1e1e1e;border-radius:14px;padding:16px}
 .ps-val{font-family:var(--head);font-size:22px;font-weight:800;color:var(--text)}
 .ps-lbl{font-size:10px;color:var(--text3);margin-top:2px;text-transform:uppercase;letter-spacing:0.05em;font-weight:600}
 .skill-tag{padding:5px 12px;border-radius:20px;background:rgba(204,255,0,0.06);border:1px solid rgba(204,255,0,0.15);font-size:11px;font-weight:600;color:var(--green);cursor:pointer;transition:all 0.2s;display:inline-block}
@@ -243,7 +243,7 @@ textarea.form-input{resize:vertical;min-height:100px;line-height:1.6}
 .f-chip{flex-shrink:0;padding:6px 14px;border-radius:20px;border:1px solid var(--border2);font-size:12px;font-weight:600;color:var(--text3);cursor:pointer;transition:all 0.2s;white-space:nowrap}
 .f-chip.active{border-color:var(--green);background:rgba(204,255,0,0.08);color:var(--green)}
 .fl-grid{display:grid;grid-template-columns:1fr 1fr;gap:10px}
-.fl-card{background:var(--bg2);border:1px solid var(--border);border-radius:16px;padding:16px;transition:all 0.2s}
+.fl-card{background:var(--bg2);border:1px solid #1e1e1e;border-radius:18px;padding:18px;transition:all 0.2s}
 .fl-card:hover{border-color:var(--border2)}
 .fl-av{width:44px;height:44px;border-radius:50%;background:linear-gradient(135deg,var(--blue),var(--green));display:flex;align-items:center;justify-content:center;font-family:var(--head);font-size:16px;font-weight:800;color:#000;margin-bottom:10px}
 .fl-name{font-size:13px;font-weight:700;color:var(--text);margin-bottom:2px}
@@ -389,9 +389,23 @@ textarea.form-input{resize:vertical;min-height:100px;line-height:1.6}
 <!-- HOME -->
 <div id="home-wrap" class="page-wrap">
   <div class="stats-row">
-    <div class="stat-box"><span class="stat-val text-green" id="s-locked">$0</span><span class="stat-lbl">Locked</span></div>
-    <div class="stat-box"><span class="stat-val" id="s-done">0</span><span class="stat-lbl">Done</span></div>
-    <div class="stat-box"><span class="stat-val text-blue" id="s-rate">0%</span><span class="stat-lbl">Success</span></div>
+    <div class="stat-box" style="border-top:2px solid var(--green)">
+      <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#CCFF00" stroke-width="2" style="margin-bottom:6px"><rect width="18" height="11" x="3" y="11" rx="2"/><path d="M7 11V7a5 5 0 0 1 10 0v4"/></svg>
+      <span class="stat-val text-green" id="s-locked">$0</span><span class="stat-lbl">USDC Locked</span>
+    </div>
+    <div class="stat-box" style="border-top:2px solid #3b82f6">
+      <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#3b82f6" stroke-width="2" style="margin-bottom:6px"><rect width="20" height="14" x="2" y="7" rx="2"/><path d="M16 21V5a2 2 0 0 0-2-2h-4a2 2 0 0 0-2 2v16"/></svg>
+      <span class="stat-val text-blue" id="s-done">0</span><span class="stat-lbl">Jobs Done</span>
+    </div>
+    <div class="stat-box" style="border-top:2px solid #10b981">
+      <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#10b981" stroke-width="2" style="margin-bottom:6px"><polyline points="20 6 9 17 4 12"/></svg>
+      <span class="stat-val text-teal" id="s-rate">0%</span><span class="stat-lbl">Success</span>
+    </div>
+  </div>
+  <div style="margin-bottom:20px;padding:16px 20px;background:linear-gradient(135deg,#111 0%,#161a0a 100%);border:1px solid #1e1e1e;border-radius:18px;border-left:3px solid #CCFF00">
+    <p style="font-size:11px;color:#555;text-transform:uppercase;letter-spacing:0.08em;font-weight:700;margin-bottom:4px">Arc Testnet</p>
+    <p style="font-family:var(--head);font-size:18px;font-weight:800;color:#fff" id="welcome-msg">Welcome back</p>
+    <p style="font-size:12px;color:#555;margin-top:2px" id="wallet-short-home">Not connected</p>
   </div>
   <div class="sec-header">
     <span class="sec-title">Active Jobs</span>
@@ -516,7 +530,12 @@ textarea.form-input{resize:vertical;min-height:100px;line-height:1.6}
   <div class="wallet-hero">
     <div class="wh-label">Total Balance</div>
     <div class="wh-balance" id="wh-balance">0.00 USDC</div>
-    <div class="wh-sub">Arc Testnet · Available</div>
+    <div style="display:flex;align-items:center;gap:8px;margin-top:4px">
+      <span style="display:flex;align-items:center;gap:5px;font-size:11px;color:rgba(255,255,255,0.35)">
+        <span style="width:6px;height:6px;background:#CCFF00;border-radius:50%;display:inline-block"></span>
+        Arc Testnet · Available
+      </span>
+    </div>
     <div class="wh-addr">
       <span id="wh-addr">Not connected</span>
       <button class="copy-btn" onclick="copyAddr()" style="background:rgba(255,255,255,0.07);border-color:rgba(255,255,255,0.1);color:rgba(255,255,255,0.4)">
@@ -942,6 +961,11 @@ async function loadJobs() {
 /* ── HOME ── */
 async function loadHome() {
   await loadJobs();
+  const addr = S.wallet||'';
+  const wm = document.getElementById('welcome-msg');
+  const ws = document.getElementById('wallet-short-home');
+  if(wm) wm.textContent = 'Welcome back, '+shortAddr(addr);
+  if(ws) ws.textContent = addr ? addr.slice(0,6)+'...'+addr.slice(-4) : '';
   const jobs=S.jobs;
   const done=jobs.filter(j=>j.status==='completed').length;
   const locked=jobs.filter(j=>['open','submitted','disputed'].includes(j.status)).reduce((s,j)=>s+parseFloat(j.amount||0),0);
