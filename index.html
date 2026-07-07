@@ -1,519 +1,1155 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Yeldra Admin Panel</title>
-  <script src="https://cdnjs.cloudflare.com/ajax/libs/ethers/6.7.0/ethers.umd.min.js"></script>
-  <style>
-    * { margin: 0; padding: 0; box-sizing: border-box; }
-    body {
-      font-family: 'Segoe UI', system-ui, sans-serif;
-      background: #0B0E14;
-      color: #fff;
-      min-height: 100vh;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      padding: 20px;
-    }
-    .container {
-      width: 100%;
-      max-width: 480px;
-    }
-    .logo {
-      text-align: center;
-      margin-bottom: 32px;
-    }
-    .logo img {
-      width: 60px;
-      height: 60px;
-      border-radius: 12px;
-      margin-bottom: 12px;
-    }
-    .logo h1 {
-      font-size: 24px;
-      font-weight: 700;
-      background: linear-gradient(135deg, #00F0FF, #8B5CF6);
-      -webkit-background-clip: text;
-      -webkit-text-fill-color: transparent;
-    }
-    .logo p {
-      color: #6B7280;
-      font-size: 13px;
-      margin-top: 4px;
-    }
-    .card {
-      background: #131720;
-      border: 1px solid #1E2433;
-      border-radius: 16px;
-      padding: 24px;
-      margin-bottom: 16px;
-    }
-    .card-title {
-      font-size: 13px;
-      color: #6B7280;
-      font-weight: 600;
-      text-transform: uppercase;
-      letter-spacing: 0.05em;
-      margin-bottom: 16px;
-    }
-    .stat-row {
-      display: flex;
-      justify-content: space-between;
-      align-items: center;
-      padding: 10px 0;
-      border-bottom: 1px solid #1E2433;
-      font-size: 14px;
-    }
-    .stat-row:last-child { border-bottom: none; }
-    .stat-label { color: #6B7280; }
-    .stat-value { font-weight: 600; color: #fff; }
-    .stat-value.cyan { color: #00F0FF; }
-    .stat-value.green { color: #4ADE80; }
-    .stat-value.red { color: #F87171; }
-    .input-group {
-      margin-bottom: 16px;
-    }
-    .input-group label {
-      display: block;
-      font-size: 13px;
-      color: #9CA3AF;
-      margin-bottom: 8px;
-      font-weight: 500;
-    }
-    .input-wrap {
-      display: flex;
-      align-items: center;
-      background: #0B0E14;
-      border: 1px solid #1E2433;
-      border-radius: 12px;
-      padding: 12px 16px;
-      gap: 10px;
-    }
-    .input-wrap:focus-within {
-      border-color: #00F0FF;
-    }
-    .input-wrap input {
-      flex: 1;
-      background: transparent;
-      border: none;
-      outline: none;
-      color: #fff;
-      font-size: 16px;
-      font-weight: 600;
-    }
-    .input-wrap input::placeholder { color: #374151; }
-    .input-wrap span {
-      color: #6B7280;
-      font-size: 13px;
-      font-weight: 600;
-    }
-    .apr-preview {
-      background: #0B0E14;
-      border: 1px solid #1E2433;
-      border-radius: 10px;
-      padding: 12px 16px;
-      font-size: 13px;
-      color: #6B7280;
-      margin-bottom: 16px;
-      text-align: center;
-    }
-    .apr-preview strong {
-      color: #00F0FF;
-      font-size: 16px;
-    }
-    .btn {
-      width: 100%;
-      padding: 14px;
-      border-radius: 12px;
-      border: none;
-      font-size: 15px;
-      font-weight: 700;
-      cursor: pointer;
-      transition: opacity 0.2s;
-    }
-    .btn:hover { opacity: 0.9; }
-    .btn:disabled { opacity: 0.4; cursor: not-allowed; }
-    .btn-gradient {
-      background: linear-gradient(135deg, #00F0FF, #8B5CF6);
-      color: #0B0E14;
-    }
-    .btn-outline {
-      background: transparent;
-      border: 1px solid #1E2433;
-      color: #fff;
-    }
-    .wallet-pill {
-      display: flex;
-      align-items: center;
-      gap: 8px;
-      padding: 10px 16px;
-      background: #131720;
-      border: 1px solid #1E2433;
-      border-radius: 100px;
-      cursor: pointer;
-      font-size: 14px;
-      font-weight: 500;
-      margin-bottom: 16px;
-      width: 100%;
-      justify-content: center;
-    }
-    .dot {
-      width: 8px;
-      height: 8px;
-      border-radius: 50%;
-      background: #6B7280;
-    }
-    .dot.green { background: #4ADE80; }
-    .toast {
-      position: fixed;
-      top: 20px;
-      right: 20px;
-      left: 20px;
-      max-width: 400px;
-      margin: 0 auto;
-      padding: 14px 18px;
-      border-radius: 12px;
-      font-size: 14px;
-      font-weight: 500;
-      z-index: 999;
-      display: none;
-      align-items: center;
-      gap: 10px;
-    }
-    .toast.show { display: flex; }
-    .toast.success { background: #14532D; border: 1px solid #4ADE80; color: #4ADE80; }
-    .toast.error { background: #450A0A; border: 1px solid #F87171; color: #F87171; }
-    .toast.info { background: #0C1A2E; border: 1px solid #00F0FF; color: #00F0FF; }
-    .toast a { color: inherit; text-decoration: underline; font-size: 12px; display: block; margin-top: 2px; }
-    .spinner {
-      width: 16px;
-      height: 16px;
-      border: 2px solid transparent;
-      border-top-color: currentColor;
-      border-radius: 50%;
-      animation: spin 0.8s linear infinite;
-      display: inline-block;
-    }
-    @keyframes spin { to { transform: rotate(360deg); } }
-    .warning {
-      background: #1C1400;
-      border: 1px solid #CA8A04;
-      border-radius: 10px;
-      padding: 12px 14px;
-      font-size: 13px;
-      color: #FDE047;
-      margin-bottom: 16px;
-    }
-    .divider {
-      height: 1px;
-      background: #1E2433;
-      margin: 20px 0;
-    }
-  </style>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0">
+<title>Yeldra · Protocol Admin</title>
+<link rel="icon" href="https://i.postimg.cc/nhSSNc9S/IMG-20260702-175620.png">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;500;600;700&family=Inter:wght@400;500;600&family=JetBrains+Mono:wght@400;500;600&display=swap" rel="stylesheet">
+<style>
+  :root{
+    --bg:#080B14;
+    --bg-elevated:#0D1220;
+    --surface:#10162A;
+    --surface-2:#141B32;
+    --border:rgba(255,255,255,0.07);
+    --border-strong:rgba(255,255,255,0.14);
+    --cyan:#00F0FF;
+    --violet:#8B5CF6;
+    --text:#E7ECF7;
+    --text-muted:#8A93AC;
+    --text-dim:#5A6479;
+    --green:#22C55E;
+    --red:#F43F5E;
+    --amber:#F59E0B;
+    --grad: linear-gradient(135deg, var(--cyan), var(--violet));
+    --radius:16px;
+    --radius-sm:10px;
+  }
+  *{box-sizing:border-box; margin:0; padding:0;}
+  html{scroll-behavior:smooth;}
+  body{
+    background:
+      radial-gradient(ellipse 900px 500px at 15% -5%, rgba(0,240,255,0.08), transparent 60%),
+      radial-gradient(ellipse 900px 600px at 90% 10%, rgba(139,92,246,0.10), transparent 60%),
+      var(--bg);
+    color:var(--text);
+    font-family:'Inter',sans-serif;
+    min-height:100vh;
+    -webkit-font-smoothing:antialiased;
+  }
+  .mono{font-family:'JetBrains Mono',monospace;}
+  .display{font-family:'Space Grotesk',sans-serif;}
+
+  /* ---------- NAV ---------- */
+  nav{
+    display:flex; align-items:center; justify-content:space-between;
+    padding:16px 28px;
+    border-bottom:1px solid var(--border);
+    background:rgba(8,11,20,0.75);
+    backdrop-filter:blur(16px);
+    position:sticky; top:0; z-index:50;
+  }
+  .brand{display:flex; align-items:center; gap:12px;}
+  .brand img{width:34px; height:34px; border-radius:9px; object-fit:cover;}
+  .brand-text{display:flex; flex-direction:column; line-height:1.15;}
+  .brand-text .name{font-family:'Space Grotesk',sans-serif; font-weight:700; font-size:16px; letter-spacing:0.2px;}
+  .brand-text .tag{font-size:11px; color:var(--text-dim); letter-spacing:1.5px; text-transform:uppercase;}
+  .nav-right{display:flex; align-items:center; gap:12px;}
+  .net-pill{
+    display:flex; align-items:center; gap:7px;
+    padding:7px 12px; border-radius:100px;
+    border:1px solid var(--border-strong);
+    background:var(--surface);
+    font-size:12.5px; color:var(--text-muted);
+  }
+  .net-dot{width:7px; height:7px; border-radius:50%; background:var(--green); box-shadow:0 0 8px var(--green);}
+  .net-dot.wrong{background:var(--red); box-shadow:0 0 8px var(--red);}
+
+  .btn{
+    display:inline-flex; align-items:center; gap:8px;
+    padding:10px 18px; border-radius:11px; border:none; cursor:pointer;
+    font-family:'Inter',sans-serif; font-weight:600; font-size:13.5px;
+    transition:transform .15s ease, box-shadow .15s ease, opacity .15s ease;
+  }
+  .btn:active{transform:scale(0.97);}
+  .btn-primary{ background:var(--grad); color:#04141A; box-shadow:0 0 0 1px rgba(0,240,255,0.25), 0 8px 24px -8px rgba(0,240,255,0.35);}
+  .btn-primary:hover{box-shadow:0 0 0 1px rgba(0,240,255,0.4), 0 10px 30px -6px rgba(0,240,255,0.5);}
+  .btn-outline{ background:transparent; color:var(--text); border:1px solid var(--border-strong);}
+  .btn-outline:hover{border-color:var(--cyan); color:var(--cyan);}
+  .btn-danger{background:rgba(244,63,94,0.12); color:#FF8FA3; border:1px solid rgba(244,63,94,0.35);}
+  .btn-danger:hover{background:rgba(244,63,94,0.2);}
+  .btn-green{background:rgba(34,197,94,0.12); color:#6EE7A0; border:1px solid rgba(34,197,94,0.35);}
+  .btn-green:hover{background:rgba(34,197,94,0.2);}
+  .btn:disabled{opacity:0.45; cursor:not-allowed; transform:none !important;}
+  .btn svg{width:15px; height:15px; flex-shrink:0;}
+
+  .wallet-wrap{position:relative;}
+  .wallet-chip{
+    display:flex; align-items:center; gap:9px;
+    padding:9px 14px; border-radius:11px;
+    background:var(--surface); border:1px solid var(--border-strong);
+    cursor:pointer; font-size:13px; font-weight:600;
+  }
+  .wallet-chip:hover{border-color:var(--cyan);}
+  .wallet-avatar{width:20px; height:20px; border-radius:50%; background:var(--grad);}
+
+  .dropdown{
+    position:absolute; top:calc(100% + 10px); right:0; width:260px;
+    background:var(--surface-2); border:1px solid var(--border-strong); border-radius:14px;
+    box-shadow:0 20px 50px -12px rgba(0,0,0,0.6);
+    padding:14px; display:none; z-index:60;
+  }
+  .dropdown.open{display:block; animation:pop .15s ease;}
+  @keyframes pop{from{opacity:0; transform:translateY(-6px);} to{opacity:1; transform:translateY(0);}}
+  .dropdown .addr{font-size:12.5px; color:var(--text-muted); word-break:break-all; padding-bottom:10px; border-bottom:1px solid var(--border); margin-bottom:10px;}
+  .dropdown-item{
+    display:flex; align-items:center; gap:10px;
+    padding:9px 8px; border-radius:9px; font-size:13px; cursor:pointer; color:var(--text);
+  }
+  .dropdown-item:hover{background:rgba(255,255,255,0.05);}
+  .dropdown-item svg{width:15px; height:15px; color:var(--text-muted);}
+  .dropdown-item.danger{color:#FF8FA3;}
+
+  main{max-width:1280px; margin:0 auto; padding:28px;}
+
+  .page-head{display:flex; align-items:flex-end; justify-content:space-between; margin-bottom:22px; flex-wrap:wrap; gap:14px;}
+  .page-head h1{font-family:'Space Grotesk',sans-serif; font-size:26px; font-weight:700;}
+  .page-head p{color:var(--text-dim); font-size:13.5px; margin-top:4px;}
+  .status-badge{
+    display:inline-flex; align-items:center; gap:8px;
+    padding:8px 14px; border-radius:100px; font-size:13px; font-weight:600;
+  }
+  .status-badge.active{background:rgba(34,197,94,0.1); color:#6EE7A0; border:1px solid rgba(34,197,94,0.3);}
+  .status-badge.paused{background:rgba(244,63,94,0.1); color:#FF8FA3; border:1px solid rgba(244,63,94,0.3);}
+
+  .status-pulse{
+    width:7px; height:7px; border-radius:50%; background:currentColor; position:relative; flex-shrink:0;
+  }
+  .status-pulse::after{
+    content:''; position:absolute; inset:-4px; border-radius:50%; background:currentColor;
+    opacity:0.5; animation:pulseRing 1.8s ease-out infinite;
+  }
+  @keyframes pulseRing{
+    0%{ transform:scale(0.6); opacity:0.5; }
+    100%{ transform:scale(2.2); opacity:0; }
+  }
+
+  .refresh-wrap{display:flex; align-items:center; gap:9px;}
+  .last-updated{font-size:11.5px; color:var(--text-dim); font-family:'JetBrains Mono',monospace;}
+  .refresh-btn{
+    width:32px; height:32px; border-radius:9px; border:1px solid var(--border-strong);
+    background:var(--surface); color:var(--text-muted); cursor:pointer;
+    display:flex; align-items:center; justify-content:center; transition:all .2s ease;
+  }
+  .refresh-btn svg{width:14px; height:14px;}
+  .refresh-btn:hover{color:var(--cyan); border-color:var(--cyan); transform:rotate(75deg);}
+  .refresh-btn.spinning svg{animation:spin .7s linear;}
+  @keyframes spin{ from{transform:rotate(0);} to{transform:rotate(360deg);} }
+
+  /* ---------- HERO ---------- */
+  .hero-card{
+    display:flex; align-items:center; justify-content:space-between; gap:24px;
+    padding:32px 34px; margin-bottom:24px; border-radius:20px;
+    background:
+      linear-gradient(135deg, rgba(0,240,255,0.07), rgba(139,92,246,0.09)),
+      var(--surface);
+    border:1px solid var(--border-strong);
+    position:relative; overflow:hidden;
+  }
+  .hero-card::before{
+    content:''; position:absolute; top:-40%; right:-10%; width:320px; height:320px; border-radius:50%;
+    background:radial-gradient(circle, rgba(0,240,255,0.14), transparent 70%);
+    pointer-events:none;
+  }
+  .hero-left{position:relative; z-index:1;}
+  .hero-label{font-size:12.5px; color:var(--text-muted); text-transform:uppercase; letter-spacing:1px; font-weight:600;}
+  .hero-value{
+    font-family:'Space Grotesk',sans-serif; font-weight:700; font-size:46px; letter-spacing:-1px;
+    margin-top:8px;
+    background:linear-gradient(135deg, #FFFFFF, #B9C6E0);
+    -webkit-background-clip:text; background-clip:text; color:transparent;
+  }
+  .hero-value .unit{font-size:18px; -webkit-text-fill-color:var(--text-dim); color:var(--text-dim); margin-left:8px; font-weight:500;}
+  .hero-sub{font-size:12.5px; color:var(--text-dim); margin-top:8px;}
+  .hero-right{display:flex; align-items:center; gap:22px; position:relative; z-index:1; flex-shrink:0;}
+  .hero-divider{width:1px; height:38px; background:var(--border-strong);}
+  .hero-stat{display:flex; flex-direction:column; gap:5px; min-width:100px;}
+  .hero-stat-label{font-size:11px; color:var(--text-dim); text-transform:uppercase; letter-spacing:0.5px;}
+  .hero-stat-value{font-family:'JetBrains Mono',monospace; font-size:17px; font-weight:600; color:var(--text);}
+
+  /* ---------- STAT GRID ---------- */
+  .stats-grid{
+    display:grid; grid-template-columns:repeat(4, 1fr); gap:16px; margin-bottom:24px;
+  }
+  .card{
+    background:linear-gradient(180deg, rgba(255,255,255,0.025), rgba(255,255,255,0.005)), var(--surface);
+    border:1px solid var(--border);
+    border-radius:var(--radius);
+    padding:20px;
+    position:relative; overflow:hidden;
+    transition:border-color .2s ease, transform .2s ease;
+  }
+  .card:hover{border-color:var(--border-strong); transform:translateY(-2px);}
+  .card::before{
+    content:''; position:absolute; top:0; left:0; right:0; height:2px;
+    background:var(--grad); opacity:0; transition:opacity .2s ease;
+  }
+  .card:hover::before{opacity:1;}
+  .card-top{display:flex; align-items:center; justify-content:space-between; margin-bottom:14px;}
+  .card-icon{
+    width:36px; height:36px; border-radius:10px;
+    display:flex; align-items:center; justify-content:center;
+    background:rgba(0,240,255,0.08); border:1px solid rgba(0,240,255,0.18);
+  }
+  .card-icon svg{width:17px; height:17px; color:var(--cyan);}
+  .card-icon.violet{background:rgba(139,92,246,0.1); border-color:rgba(139,92,246,0.22);}
+  .card-icon.violet svg{color:var(--violet);}
+  .card-icon.green{background:rgba(34,197,94,0.1); border-color:rgba(34,197,94,0.25);}
+  .card-icon.green svg{color:var(--green);}
+  .card-icon.amber{background:rgba(245,158,11,0.1); border-color:rgba(245,158,11,0.25);}
+  .card-icon.amber svg{color:var(--amber);}
+  .card-label{font-size:12px; color:var(--text-dim); text-transform:uppercase; letter-spacing:0.6px; font-weight:600;}
+  .card-value{font-family:'Space Grotesk',sans-serif; font-size:25px; font-weight:700; letter-spacing:-0.3px;}
+  .card-value .unit{font-size:13px; color:var(--text-dim); font-weight:500; margin-left:5px;}
+  .card-sub{font-size:12px; color:var(--text-dim); margin-top:6px;}
+  .skeleton{
+    display:inline-block; height:22px; width:70%; border-radius:6px;
+    background:linear-gradient(90deg, var(--surface-2) 25%, rgba(255,255,255,0.06) 50%, var(--surface-2) 75%);
+    background-size:200% 100%; animation:shimmer 1.4s infinite;
+  }
+  @keyframes shimmer{ 0%{background-position:200% 0;} 100%{background-position:-200% 0;} }
+
+  /* countdown ring card */
+  .ring-card{display:flex; align-items:center; gap:16px;}
+  .ring-wrap{position:relative; width:64px; height:64px; flex-shrink:0;}
+  .ring-wrap svg{transform:rotate(-90deg);}
+  .ring-bg{fill:none; stroke:var(--border-strong); stroke-width:5;}
+  .ring-fg{fill:none; stroke:url(#ringGrad); stroke-width:5; stroke-linecap:round; transition:stroke-dashoffset 1s ease;}
+
+  /* ---------- PANELS ---------- */
+  .panels-grid{display:grid; grid-template-columns:1.1fr 0.9fr; gap:18px;}
+  .panel{
+    background:var(--surface); border:1px solid var(--border); border-radius:var(--radius); padding:24px;
+  }
+  .panel-head{display:flex; align-items:center; gap:10px; margin-bottom:6px;}
+  .panel-head svg{width:18px; height:18px; color:var(--cyan);}
+  .panel-head h2{font-family:'Space Grotesk',sans-serif; font-size:16.5px; font-weight:600;}
+  .panel-desc{font-size:12.5px; color:var(--text-dim); margin-bottom:20px;}
+
+  .field{margin-bottom:16px;}
+  .field label{display:block; font-size:12px; color:var(--text-muted); margin-bottom:7px; font-weight:600; letter-spacing:0.3px;}
+  .input-row{position:relative;}
+  .input-row input{
+    width:100%; padding:13px 14px; border-radius:11px;
+    background:var(--bg-elevated); border:1px solid var(--border-strong); color:var(--text);
+    font-family:'JetBrains Mono',monospace; font-size:14px; outline:none;
+    transition:border-color .15s ease;
+  }
+  .input-row input:focus{border-color:var(--cyan); box-shadow:0 0 0 3px rgba(0,240,255,0.1);}
+  .input-suffix{position:absolute; right:14px; top:50%; transform:translateY(-50%); font-size:12.5px; color:var(--text-dim); font-weight:600;}
+  .field-hint{font-size:11.5px; color:var(--text-dim); margin-top:6px;}
+
+  .step-row{display:flex; align-items:center; gap:10px; margin-top:4px;}
+  .step-num{
+    width:22px; height:22px; border-radius:50%; flex-shrink:0;
+    display:flex; align-items:center; justify-content:center;
+    font-size:11px; font-weight:700; border:1px solid var(--border-strong); color:var(--text-dim);
+  }
+  .step-num.done{background:var(--green); border-color:var(--green); color:#04140A;}
+  .step-num.active{border-color:var(--cyan); color:var(--cyan);}
+  .step-line{flex:1; height:1px; background:var(--border-strong);}
+
+  .fund-actions{display:flex; gap:10px; margin-top:20px;}
+  .fund-actions .btn{flex:1; justify-content:center;}
+
+  .divider{height:1px; background:var(--border); margin:20px 0;}
+
+  .info-row{display:flex; align-items:center; justify-content:space-between; padding:10px 0; border-bottom:1px solid var(--border); font-size:13px;}
+  .info-row:last-child{border-bottom:none;}
+  .info-row .k{color:var(--text-dim);}
+  .info-row .v{font-family:'JetBrains Mono',monospace; font-weight:600;}
+
+  .owner-warning{
+    display:flex; gap:10px; align-items:flex-start;
+    background:rgba(245,158,11,0.08); border:1px solid rgba(245,158,11,0.25);
+    border-radius:11px; padding:12px 14px; font-size:12.5px; color:#F5C87B; margin-bottom:18px;
+  }
+  .owner-warning svg{width:16px; height:16px; flex-shrink:0; margin-top:1px;}
+
+  .control-actions{display:flex; gap:10px; margin-top:16px;}
+  .control-actions .btn{flex:1; justify-content:center;}
+
+  /* ---------- MODALS ---------- */
+  .overlay{
+    position:fixed; inset:0; background:rgba(5,7,13,0.7); backdrop-filter:blur(6px);
+    display:none; align-items:center; justify-content:center; z-index:100; padding:20px;
+  }
+  .overlay.open{display:flex; animation:fadeIn .15s ease;}
+  @keyframes fadeIn{from{opacity:0;} to{opacity:1;}}
+  .modal{
+    width:100%; max-width:380px; background:var(--surface-2); border:1px solid var(--border-strong);
+    border-radius:18px; padding:22px; box-shadow:0 30px 70px -15px rgba(0,0,0,0.7);
+  }
+  .modal-head{display:flex; align-items:center; justify-content:space-between; margin-bottom:18px;}
+  .modal-head h3{font-family:'Space Grotesk',sans-serif; font-size:17px; font-weight:600;}
+  .close-btn{width:28px; height:28px; border-radius:8px; border:1px solid var(--border-strong); background:transparent; color:var(--text-muted); cursor:pointer; display:flex; align-items:center; justify-content:center;}
+  .close-btn:hover{color:var(--text); border-color:var(--cyan);}
+  .wallet-option{
+    display:flex; align-items:center; gap:13px; width:100%;
+    padding:14px; border-radius:13px; border:1px solid var(--border-strong); background:var(--bg-elevated);
+    cursor:pointer; margin-bottom:10px; transition:border-color .15s ease, background .15s ease;
+  }
+  .wallet-option:hover{border-color:var(--cyan); background:rgba(0,240,255,0.04);}
+  .wallet-option img{width:32px; height:32px; border-radius:8px;}
+  .wallet-option .wname{font-weight:600; font-size:14px;}
+  .wallet-option .wsub{font-size:11.5px; color:var(--text-dim);}
+  .wallet-option-arrow{margin-left:auto; width:16px; height:16px; color:var(--text-dim);}
+  .modal-note{font-size:11.5px; color:var(--text-dim); text-align:center; margin-top:14px; line-height:1.5;}
+
+  .confirm-modal p{font-size:13.5px; color:var(--text-muted); line-height:1.6; margin-bottom:20px;}
+  .confirm-actions{display:flex; gap:10px;}
+  .confirm-actions .btn{flex:1; justify-content:center;}
+
+  /* ---------- TOASTS ---------- */
+  #toastContainer{position:fixed; bottom:22px; right:22px; z-index:200; display:flex; flex-direction:column; gap:10px; max-width:340px;}
+  .toast{
+    background:var(--surface-2); border:1px solid var(--border-strong); border-radius:13px;
+    padding:14px 16px; display:flex; gap:12px; align-items:flex-start;
+    box-shadow:0 15px 40px -10px rgba(0,0,0,0.6);
+    animation:slideIn .25s ease;
+  }
+  @keyframes slideIn{from{opacity:0; transform:translateX(30px);} to{opacity:1; transform:translateX(0);}}
+  .toast.out{animation:slideOut .2s ease forwards;}
+  @keyframes slideOut{to{opacity:0; transform:translateX(30px);}}
+  .toast-icon{width:32px; height:32px; border-radius:9px; flex-shrink:0; display:flex; align-items:center; justify-content:center;}
+  .toast-icon.success{background:rgba(34,197,94,0.12); color:var(--green);}
+  .toast-icon.error{background:rgba(244,63,94,0.12); color:var(--red);}
+  .toast-icon.info{background:rgba(0,240,255,0.12); color:var(--cyan);}
+  .toast-icon.pending{background:rgba(245,158,11,0.12); color:var(--amber);}
+  .toast-icon svg{width:16px; height:16px;}
+  .toast-body{flex:1;}
+  .toast-title{font-size:13px; font-weight:600; margin-bottom:2px;}
+  .toast-msg{font-size:12px; color:var(--text-dim); line-height:1.5;}
+  .toast-link{font-size:11.5px; color:var(--cyan); text-decoration:none; font-weight:600; display:inline-block; margin-top:6px;}
+  .toast-link:hover{text-decoration:underline;}
+  .toast-close{background:none; border:none; color:var(--text-dim); cursor:pointer; font-size:15px; line-height:1;}
+
+  footer{text-align:center; padding:30px 20px; color:var(--text-dim); font-size:12px;}
+
+  @media (max-width:980px){
+    .stats-grid{grid-template-columns:repeat(2,1fr);}
+    .panels-grid{grid-template-columns:1fr;}
+    .hero-card{flex-direction:column; align-items:flex-start; gap:20px;}
+    .hero-right{width:100%; justify-content:space-between;}
+  }
+  @media (max-width:560px){
+    .stats-grid{grid-template-columns:1fr 1fr;}
+    nav{padding:14px 16px;}
+    main{padding:18px;}
+    .card-value{font-size:20px;}
+    .hero-value{font-size:34px;}
+  }
+</style>
 </head>
 <body>
 
-<div class="container">
-  <div class="logo">
-    <img src="https://i.postimg.cc/nhSSNc9S/IMG-20260702-175620.png" alt="Yeldra" onerror="this.style.display='none'" />
-    <h1>Yeldra Admin</h1>
-    <p>Owner-only reward management panel</p>
-  </div>
+<svg width="0" height="0"><defs>
+  <linearGradient id="ringGrad" x1="0%" y1="0%" x2="100%" y2="100%">
+    <stop offset="0%" stop-color="#00F0FF"/>
+    <stop offset="100%" stop-color="#8B5CF6"/>
+  </linearGradient>
+</defs></svg>
 
-  <!-- Wallet Connect -->
-  <button class="wallet-pill" id="walletBtn" onclick="connectWallet()">
-    <span class="dot" id="walletDot"></span>
-    <span id="walletText">Connect Owner Wallet</span>
-  </button>
-
-  <!-- Protocol Stats -->
-  <div class="card">
-    <div class="card-title">Protocol Stats</div>
-    <div class="stat-row">
-      <span class="stat-label">Total Staked</span>
-      <span class="stat-value cyan" id="totalStaked">—</span>
-    </div>
-    <div class="stat-row">
-      <span class="stat-label">Current APR</span>
-      <span class="stat-value" id="currentAPR">—</span>
-    </div>
-    <div class="stat-row">
-      <span class="stat-label">Reward Period</span>
-      <span class="stat-value" id="rewardPeriod">—</span>
-    </div>
-    <div class="stat-row">
-      <span class="stat-label">Your USDC Balance</span>
-      <span class="stat-value green" id="ownerBalance">—</span>
-    </div>
-    <div class="stat-row">
-      <span class="stat-label">Protocol Status</span>
-      <span class="stat-value" id="protocolStatus">—</span>
+<nav>
+  <div class="brand">
+    <img src="https://i.postimg.cc/nhSSNc9S/IMG-20260702-175620.png" alt="Yeldra">
+    <div class="brand-text">
+      <span class="name">Yeldra</span>
+      <span class="tag">Protocol Admin</span>
     </div>
   </div>
+  <div class="nav-right">
+    <div class="net-pill">
+      <span class="net-dot" id="netDot"></span>
+      <span id="netLabel">Sepolia</span>
+    </div>
+    <div id="connectWrap">
+      <button class="btn btn-primary" id="connectBtn">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="2" y="6" width="20" height="14" rx="3"/><path d="M16 12h4"/><path d="M2 10h20"/></svg>
+        Connect Wallet
+      </button>
+    </div>
+  </div>
+</nav>
 
-  <!-- Fund Rewards -->
-  <div class="card">
-    <div class="card-title">Fund Rewards</div>
+<main>
+  <div class="page-head">
+    <div>
+      <h1>Reward Controls</h1>
+      <p>Yeldra staking contract · <span class="mono" id="contractShort">0x9bD1…7EBB</span></p>
+    </div>
+    <div style="display:flex; align-items:center; gap:12px;">
+      <div class="refresh-wrap">
+        <span class="last-updated" id="lastUpdated">—</span>
+        <button class="refresh-btn" id="manualRefreshBtn" title="Refresh now">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 12a9 9 0 1 1-3-6.7"/><path d="M21 4v5h-5"/></svg>
+        </button>
+      </div>
+      <div class="status-badge active" id="statusBadge">
+        <span class="status-pulse" id="statusDot"></span>
+        <span id="statusText">Loading…</span>
+      </div>
+    </div>
+  </div>
 
-    <div class="warning">
-      ⚠️ Make sure you have enough USDC in your wallet before funding.
+  <!-- HERO -->
+  <div class="hero-card">
+    <div class="hero-left">
+      <span class="hero-label">Total Value Locked</span>
+      <div class="hero-value" id="heroTVL"><span class="skeleton" style="width:220px; height:44px;"></span></div>
+      <div class="hero-sub" id="heroTVLSub">Staked principal + reward pool, combined USDC balance</div>
+    </div>
+    <div class="hero-right">
+      <div class="hero-stat">
+        <span class="hero-stat-label">Staked</span>
+        <span class="hero-stat-value" id="heroStakedMini">—</span>
+      </div>
+      <div class="hero-divider"></div>
+      <div class="hero-stat">
+        <span class="hero-stat-label">Reward Pool</span>
+        <span class="hero-stat-value" id="heroPoolMini">—</span>
+      </div>
+    </div>
+  </div>
+
+  <!-- STATS -->
+  <div class="stats-grid">
+
+    <div class="card">
+      <div class="card-top">
+        <span class="card-label">Total Staked</span>
+        <div class="card-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 2 3 7l9 5 9-5-9-5Z"/><path d="M3 12l9 5 9-5"/><path d="M3 17l9 5 9-5"/></svg></div>
+      </div>
+      <div class="card-value" id="totalStaked"><span class="skeleton"></span></div>
+      <div class="card-sub">USDC locked by stakers</div>
     </div>
 
-    <div class="input-group">
-      <label>Reward Amount</label>
-      <div class="input-wrap">
-        <input type="number" id="rewardAmount" placeholder="20" min="1" oninput="updatePreview()" />
-        <span>USDC</span>
+    <div class="card">
+      <div class="card-top">
+        <span class="card-label">Current APR</span>
+        <div class="card-icon violet"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 17l6-6 4 4 8-8"/><path d="M17 7h4v4"/></svg></div>
+      </div>
+      <div class="card-value" id="currentAPR"><span class="skeleton"></span></div>
+      <div class="card-sub">Annualized, live estimate</div>
+    </div>
+
+    <div class="card">
+      <div class="card-top">
+        <span class="card-label">Remaining Reward</span>
+        <div class="card-icon amber"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="9"/><path d="M12 7v5l3 3"/></svg></div>
+      </div>
+      <div class="card-value" id="remainingReward"><span class="skeleton"></span></div>
+      <div class="card-sub">বাকি আছে বিতরণের জন্য</div>
+    </div>
+
+    <div class="card">
+      <div class="card-top">
+        <span class="card-label">Period Total</span>
+        <div class="card-icon green"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="3" width="18" height="18" rx="3"/><path d="M8 12h8M12 8v8"/></svg></div>
+      </div>
+      <div class="card-value" id="periodTotal"><span class="skeleton"></span></div>
+      <div class="card-sub">মোট এই period-এ বরাদ্দ</div>
+    </div>
+
+    <div class="card">
+      <div class="card-top">
+        <span class="card-label">Already Distributed</span>
+        <div class="card-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M20 6 9 17l-5-5"/></svg></div>
+      </div>
+      <div class="card-value" id="distributed"><span class="skeleton"></span></div>
+      <div class="card-sub">এখন পর্যন্ত বিতরণ হয়েছে</div>
+    </div>
+
+    <div class="card">
+      <div class="card-top">
+        <span class="card-label">Daily Rate</span>
+        <div class="card-icon violet"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 2v4M12 18v4M4.9 4.9l2.8 2.8M16.3 16.3l2.8 2.8M2 12h4M18 12h4M4.9 19.1l2.8-2.8M16.3 7.7l2.8-2.8"/></svg></div>
+      </div>
+      <div class="card-value" id="dailyRate"><span class="skeleton"></span></div>
+      <div class="card-sub">প্রতিদিন বিতরণ হচ্ছে</div>
+    </div>
+
+    <div class="card ring-card">
+      <div class="ring-wrap">
+        <svg width="64" height="64" viewBox="0 0 64 64">
+          <circle class="ring-bg" cx="32" cy="32" r="27"/>
+          <circle class="ring-fg" id="ringFg" cx="32" cy="32" r="27" stroke-dasharray="169.6" stroke-dashoffset="169.6"/>
+        </svg>
+      </div>
+      <div>
+        <span class="card-label">Period Countdown</span>
+        <div class="card-value" id="countdown" style="font-size:19px; margin-top:4px;"><span class="skeleton"></span></div>
+        <div class="card-sub" id="countdownDate">কতদিন বাকি</div>
       </div>
     </div>
 
-    <div class="input-group">
-      <label>Duration</label>
-      <div class="input-wrap">
-        <input type="number" id="rewardDays" placeholder="3" min="1" oninput="updatePreview()" />
-        <span>Days</span>
+    <div class="card">
+      <div class="card-top">
+        <span class="card-label">Protocol Status</span>
+        <div class="card-icon" id="statusIconWrap"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 2a10 10 0 1 0 10 10"/><path d="M12 2v10l7 4"/></svg></div>
+      </div>
+      <div class="card-value" id="protocolStatusVal"><span class="skeleton"></span></div>
+      <div class="card-sub" id="ownerLine">Owner —</div>
+    </div>
+
+  </div>
+
+  <!-- PANELS -->
+  <div class="panels-grid">
+
+    <div class="panel">
+      <div class="panel-head">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 2v20M2 12h20"/><circle cx="12" cy="12" r="9"/></svg>
+        <h2>Fund Rewards</h2>
+      </div>
+      <div class="panel-desc">USDC deposit করে নতুন reward period শুরু করুন। Approve → Notify, দুই ধাপে সম্পন্ন হবে।</div>
+
+      <div class="field">
+        <label>Reward Amount (USDC)</label>
+        <div class="input-row">
+          <input type="number" id="fundAmount" placeholder="0.00" min="0" step="0.000001">
+          <span class="input-suffix">USDC</span>
+        </div>
+      </div>
+
+      <div class="field">
+        <label>Distribution Period (Days)</label>
+        <div class="input-row">
+          <input type="number" id="fundDays" placeholder="30" min="1" step="1">
+          <span class="input-suffix">days</span>
+        </div>
+        <div class="field-hint" id="dailyPreview">Daily payout preview will appear here</div>
+      </div>
+
+      <div class="step-row">
+        <div class="step-num active" id="stepDot1">1</div>
+        <div class="step-line"></div>
+        <div class="step-num" id="stepDot2">2</div>
+      </div>
+      <div style="display:flex; justify-content:space-between; font-size:11px; color:var(--text-dim); margin-top:6px;">
+        <span>Approve USDC</span>
+        <span>Notify Reward</span>
+      </div>
+
+      <div class="fund-actions">
+        <button class="btn btn-outline" id="approveBtn">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M9 12l2 2 4-4"/><circle cx="12" cy="12" r="9"/></svg>
+          Approve
+        </button>
+        <button class="btn btn-primary" id="fundBtn" disabled>
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M5 12h14M13 6l6 6-6 6"/></svg>
+          Fund Rewards
+        </button>
       </div>
     </div>
 
-    <div class="apr-preview" id="aprPreview">
-      Enter amount and days to preview APR
+    <div class="panel">
+      <div class="panel-head">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="4" y="4" width="16" height="16" rx="3"/><path d="M9 9v6M15 9v6"/></svg>
+        <h2>Protocol Control</h2>
+      </div>
+      <div class="panel-desc">Emergency pause বা resume করুন। শুধুমাত্র owner wallet দিয়ে সম্ভব।</div>
+
+      <div class="owner-warning" id="ownerWarning" style="display:none;">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 9v4M12 17h.01"/><path d="M10.3 3.9 1.9 18a2 2 0 0 0 1.7 3h16.8a2 2 0 0 0 1.7-3L13.7 3.9a2 2 0 0 0-3.4 0Z"/></svg>
+        <span>Connected wallet is not the contract owner. Actions below will revert on-chain.</span>
+      </div>
+
+      <div class="info-row"><span class="k">Contract Owner</span><span class="v" id="ownerAddr">—</span></div>
+      <div class="info-row"><span class="k">Your Wallet</span><span class="v" id="yourAddr">—</span></div>
+      <div class="info-row"><span class="k">Network</span><span class="v" id="netInfo">Ethereum Sepolia</span></div>
+
+      <div class="divider"></div>
+
+      <div class="control-actions">
+        <button class="btn btn-green" id="unpauseBtn">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M5 3l14 9-14 9V3Z"/></svg>
+          Unpause
+        </button>
+        <button class="btn btn-danger" id="pauseBtn">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="6" y="4" width="4" height="16" rx="1"/><rect x="14" y="4" width="4" height="16" rx="1"/></svg>
+          Pause
+        </button>
+      </div>
     </div>
 
-    <button class="btn btn-gradient" id="fundBtn" onclick="fundRewards()" disabled>
-      Fund Rewards
-    </button>
+  </div>
 
-    <div class="divider"></div>
+  <footer>Yeldra Protocol Admin · Sepolia Testnet · Not connected to mainnet funds</footer>
+</main>
 
-    <div class="card-title">Danger Zone</div>
-    <div style="display:flex; gap:10px;">
-      <button class="btn btn-outline" onclick="pauseProtocol()" id="pauseBtn" disabled style="flex:1">
-        Pause
-      </button>
-      <button class="btn btn-outline" onclick="unpauseProtocol()" id="unpauseBtn" disabled style="flex:1">
-        Unpause
-      </button>
+<!-- WALLET CONNECT MODAL -->
+<div class="overlay" id="walletModal">
+  <div class="modal">
+    <div class="modal-head">
+      <h3>Connect Wallet</h3>
+      <button class="close-btn" id="closeWalletModal">✕</button>
+    </div>
+    <div id="walletList"></div>
+    <div class="modal-note">By connecting, you agree this panel interacts directly with the Yeldra smart contract on Sepolia testnet.</div>
+  </div>
+</div>
+
+<!-- WALLET DROPDOWN -->
+<div class="wallet-wrap" id="walletChipWrap" style="display:none; position:fixed; top:14px; right:28px; z-index:55;">
+  <div class="wallet-chip" id="walletChip">
+    <div class="wallet-avatar"></div>
+    <span id="walletChipAddr">0x0000…0000</span>
+    <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M6 9l6 6 6-6"/></svg>
+  </div>
+  <div class="dropdown" id="walletDropdown">
+    <div class="addr mono" id="dropdownAddr">0x…</div>
+    <div class="dropdown-item" id="copyAddrBtn">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="9" y="9" width="13" height="13" rx="2"/><path d="M5 15V5a2 2 0 0 1 2-2h10"/></svg>
+      Copy Address
+    </div>
+    <div class="dropdown-item" id="etherscanBtn">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6"/><path d="M15 3h6v6M10 14 21 3"/></svg>
+      View on Etherscan
+    </div>
+    <div class="dropdown-item danger" id="disconnectBtn">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"/><path d="M16 17l5-5-5-5M21 12H9"/></svg>
+      Disconnect
     </div>
   </div>
 </div>
 
-<!-- Toast -->
-<div class="toast" id="toast">
-  <span id="toastMsg"></span>
+<!-- CONFIRM MODAL (pause/unpause/fund) -->
+<div class="overlay" id="confirmModal">
+  <div class="modal confirm-modal">
+    <div class="modal-head">
+      <h3 id="confirmTitle">Confirm Action</h3>
+      <button class="close-btn" id="closeConfirmModal">✕</button>
+    </div>
+    <p id="confirmBody">Are you sure?</p>
+    <div class="confirm-actions">
+      <button class="btn btn-outline" id="confirmCancel">Cancel</button>
+      <button class="btn btn-danger" id="confirmOk">Confirm</button>
+    </div>
+  </div>
 </div>
 
+<div id="toastContainer"></div>
+
+<script src="https://cdn.jsdelivr.net/npm/ethers@6.13.4/dist/ethers.umd.min.js"></script>
 <script>
-  const CONTRACT_ADDRESS = '0x9bD14eA64dEA9b130f7978b1D0498cc013427EBB'
-  const USDC_ADDRESS = '0x1c7D4B196Cb0C7B01d743Fbc6116a902379C7238'
-  const SEPOLIA_CHAIN_ID = 11155111
-  const SEPOLIA_CHAIN_ID_HEX = '0xaa36a7'
-  const EXPLORER = 'https://sepolia.etherscan.io'
+/* ==========================================================
+   CONFIG — verify function names against your deployed ABI.
+   This uses common StakingRewards-style naming; adjust the
+   ABI below if your contract uses different getter names.
+   ========================================================== */
+const CONFIG = {
+  chainIdHex: '0xaa36a7', // 11155111
+  chainIdDec: 11155111,
+  chainName: 'Ethereum Sepolia',
+  rpcUrl: 'https://ethereum-sepolia-rpc.publicnode.com',
+  explorer: 'https://sepolia.etherscan.io',
+  stakingAddress: '0x9bD14eA64dEA9b130f7978b1D0498cc013427EBB',
+  usdcAddress: '0x1c7D4B196Cb0C7B01d743Fbc6116a902379C7238',
+  logo: 'https://i.postimg.cc/nhSSNc9S/IMG-20260702-175620.png'
+};
 
-  const STAKING_ABI = [
-    'function totalStaked() view returns (uint256)',
-    'function currentAPR() view returns (uint256)',
-    'function periodFinish() view returns (uint256)',
-    'function paused() view returns (bool)',
-    'function notifyRewardAmount(uint256 reward, uint256 duration) external',
-    'function pause() external',
-    'function unpause() external',
-    'function owner() view returns (address)',
-  ]
+const STAKING_ABI = [
+  "function owner() view returns (address)",
+  "function paused() view returns (bool)",
+  "function totalStaked() view returns (uint256)",
+  "function totalSupply() view returns (uint256)",
+  "function rewardRate() view returns (uint256)",
+  "function periodFinish() view returns (uint256)",
+  "function rewardsDuration() view returns (uint256)",
+  "function notifyRewardAmount(uint256 reward)",
+  "function setRewardsDuration(uint256 _rewardsDuration)",
+  "function pause()",
+  "function unpause()"
+];
 
-  const ERC20_ABI = [
-    'function balanceOf(address) view returns (uint256)',
-    'function approve(address, uint256) external returns (bool)',
-    'function decimals() view returns (uint8)',
-  ]
+const ERC20_ABI = [
+  "function decimals() view returns (uint8)",
+  "function symbol() view returns (string)",
+  "function balanceOf(address) view returns (uint256)",
+  "function allowance(address owner, address spender) view returns (uint256)",
+  "function approve(address spender, uint256 amount) returns (bool)"
+];
 
-  let provider, signer, account
+const WALLETS = [
+  { key:'metamask', name:'MetaMask', sub:'Browser extension', icon:'https://i.postimg.cc/nzHmMSBM/images.png' },
+  { key:'rabby', name:'Rabby Wallet', sub:'Browser extension', icon:'https://i.postimg.cc/XvMq8mTP/download-(1).jpg' }
+];
 
-  function showToast(msg, type = 'info', txHash = null) {
-    const t = document.getElementById('toast')
-    const m = document.getElementById('toastMsg')
-    t.className = `toast show ${type}`
-    m.innerHTML = msg + (txHash ? `<a href="${EXPLORER}/tx/${txHash}" target="_blank">View on Etherscan ↗</a>` : '')
-    setTimeout(() => t.classList.remove('show'), 6000)
+/* ---------------- STATE ---------------- */
+let provider, signer, userAddress, stakingRead, stakingWrite, usdcRead, usdcWrite;
+let readProvider; // dedicated RPC used for ALL reads, independent of wallet's own node
+let usdcDecimals = 6;
+let isOwner = false;
+let refreshTimer = null;
+let pendingAction = null; // 'pause' | 'unpause' | 'fund'
+
+/* Reads always go through one fixed RPC endpoint. Different wallets (MetaMask,
+   Rabby) route eth_call through their own RPC/node providers, and on testnets
+   those nodes can be a few blocks behind each other — that mismatch is what
+   was causing Total Staked to show a slightly stale number after connecting.
+   Writes still go through the wallet's signer as normal. */
+function getReadProvider(){
+  if (!readProvider) readProvider = new ethers.JsonRpcProvider(CONFIG.rpcUrl);
+  return readProvider;
+}
+
+/* ---------------- UTIL ---------------- */
+function short(addr){ return addr ? addr.slice(0,6) + '…' + addr.slice(-4) : '—'; }
+function fmt(num, max=2){
+  if (num === null || num === undefined || isNaN(num)) return '—';
+  return Number(num).toLocaleString(undefined, { maximumFractionDigits: max });
+}
+function getProviders(){
+  const list = [];
+  const eth = window.ethereum;
+  if (!eth) return list;
+  const injected = eth.providers && eth.providers.length ? eth.providers : [eth];
+  injected.forEach(p => {
+    if (p.isRabby) list.push({ key:'rabby', provider:p });
+    else if (p.isMetaMask) list.push({ key:'metamask', provider:p });
+  });
+  return list;
+}
+
+// Smoothly counts a card's displayed number from its previous value to the
+// new one instead of popping instantly — small touch that reads as "live
+// data" rather than a static page reloading numbers.
+const _lastValues = {};
+function animateValue(id, target, unit, big){
+  const el = document.getElementById(id);
+  if (!el) return;
+  const from = _lastValues[id] ?? 0;
+  _lastValues[id] = target;
+  const duration = 600;
+  const start = performance.now();
+  function step(now){
+    const p = Math.min((now - start) / duration, 1);
+    const eased = 1 - Math.pow(1 - p, 3);
+    const val = from + (target - from) * eased;
+    el.innerHTML = fmt(val, 2) + `<span class="unit">${unit}</span>`;
+    if (p < 1) requestAnimationFrame(step);
   }
+  requestAnimationFrame(step);
+}
 
-  function setBtn(id, text, disabled) {
-    const btn = document.getElementById(id)
-    btn.innerHTML = text
-    btn.disabled = disabled
+function markUpdated(){
+  const el = document.getElementById('lastUpdated');
+  if (el) el.textContent = 'Updated ' + new Date().toLocaleTimeString([], {hour:'2-digit', minute:'2-digit', second:'2-digit'});
+}
+
+document.getElementById('manualRefreshBtn').onclick = async () => {
+  const btn = document.getElementById('manualRefreshBtn');
+  btn.classList.add('spinning');
+  await refreshAll();
+  setTimeout(() => btn.classList.remove('spinning'), 700);
+};
+
+/* ---------------- TOASTS ---------------- */
+function toast({type='info', title, msg, txHash}){
+  const container = document.getElementById('toastContainer');
+  const el = document.createElement('div');
+  el.className = 'toast';
+  const icons = {
+    success: '<path d="M20 6 9 17l-5-5"/>',
+    error: '<path d="M18 6 6 18M6 6l12 12"/>',
+    info: '<circle cx="12" cy="12" r="9"/><path d="M12 8h.01M12 12v4"/>',
+    pending: '<circle cx="12" cy="12" r="9"/><path d="M12 7v5l3 3"/>'
+  };
+  el.innerHTML = `
+    <div class="toast-icon ${type}"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">${icons[type]}</svg></div>
+    <div class="toast-body">
+      <div class="toast-title">${title}</div>
+      ${msg ? `<div class="toast-msg">${msg}</div>` : ''}
+      ${txHash ? `<a class="toast-link" href="${CONFIG.explorer}/tx/${txHash}" target="_blank" rel="noopener">View on Etherscan →</a>` : ''}
+    </div>
+    <button class="toast-close">✕</button>`;
+  el.querySelector('.toast-close').onclick = () => removeToast(el);
+  container.appendChild(el);
+  const timeout = setTimeout(() => removeToast(el), 9000);
+  el._timeout = timeout;
+  return el;
+}
+function removeToast(el){
+  if (!el) return;
+  clearTimeout(el._timeout);
+  el.classList.add('out');
+  setTimeout(() => el.remove(), 200);
+}
+
+/* ---------------- WALLET CONNECT ---------------- */
+document.getElementById('connectBtn').onclick = openWalletModal;
+document.getElementById('closeWalletModal').onclick = () => toggleOverlay('walletModal', false);
+
+function openWalletModal(){
+  const list = document.getElementById('walletList');
+  const available = getProviders();
+  list.innerHTML = '';
+  WALLETS.forEach(w => {
+    const found = available.find(a => a.key === w.key);
+    const opt = document.createElement('div');
+    opt.className = 'wallet-option';
+    opt.innerHTML = `
+      <img src="${w.icon}" alt="${w.name}">
+      <div>
+        <div class="wname">${w.name}</div>
+        <div class="wsub">${found ? 'Detected' : 'Not installed'}</div>
+      </div>
+      <svg class="wallet-option-arrow" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M9 6l6 6-6 6"/></svg>`;
+    opt.onclick = () => found ? connectWallet(found.provider) : window.open('https://' + (w.key==='rabby'?'rabby.io':'metamask.io'), '_blank');
+    list.appendChild(opt);
+  });
+  toggleOverlay('walletModal', true);
+}
+
+function toggleOverlay(id, open){
+  document.getElementById(id).classList.toggle('open', open);
+}
+
+async function connectWallet(injected){
+  try{
+    toggleOverlay('walletModal', false);
+    provider = new ethers.BrowserProvider(injected);
+    await injected.request({ method:'eth_requestAccounts' });
+    await ensureNetwork(injected);
+    signer = await provider.getSigner();
+    userAddress = await signer.getAddress();
+
+    stakingRead = new ethers.Contract(CONFIG.stakingAddress, STAKING_ABI, getReadProvider());
+    stakingWrite = new ethers.Contract(CONFIG.stakingAddress, STAKING_ABI, signer);
+    usdcRead = new ethers.Contract(CONFIG.usdcAddress, ERC20_ABI, getReadProvider());
+    usdcWrite = new ethers.Contract(CONFIG.usdcAddress, ERC20_ABI, signer);
+
+    try{ usdcDecimals = await usdcRead.decimals(); }catch(e){ usdcDecimals = 6; }
+
+    updateWalletUI();
+    toast({type:'success', title:'Wallet Connected', msg: short(userAddress)});
+    await refreshAll();
+    await syncAllowanceUI();
+    startAutoRefresh();
+
+    injected.on && injected.on('accountsChanged', () => window.location.reload());
+    injected.on && injected.on('chainChanged', () => window.location.reload());
+  }catch(err){
+    console.error(err);
+    toast({type:'error', title:'Connection Failed', msg: err.message?.slice(0,120) || 'Could not connect wallet'});
   }
+}
 
-  async function connectWallet() {
-    if (!window.ethereum) return showToast('No wallet found. Install MetaMask or Rabby.', 'error')
-    try {
-      await window.ethereum.request({ method: 'eth_requestAccounts' })
-      const p = new ethers.BrowserProvider(window.ethereum)
-      const network = await p.getNetwork()
+async function ensureNetwork(injected){
+  try{
+    await injected.request({ method:'wallet_switchEthereumChain', params:[{ chainId: CONFIG.chainIdHex }] });
+  }catch(switchErr){
+    if (switchErr.code === 4902){
+      await injected.request({
+        method:'wallet_addEthereumChain',
+        params:[{
+          chainId: CONFIG.chainIdHex,
+          chainName: CONFIG.chainName,
+          rpcUrls:[CONFIG.rpcUrl],
+          nativeCurrency:{ name:'Sepolia ETH', symbol:'ETH', decimals:18 },
+          blockExplorerUrls:[CONFIG.explorer]
+        }]
+      });
+    } else { throw switchErr; }
+  }
+}
 
-      if (Number(network.chainId) !== SEPOLIA_CHAIN_ID) {
-        try {
-          await window.ethereum.request({ method: 'wallet_switchEthereumChain', params: [{ chainId: SEPOLIA_CHAIN_ID_HEX }] })
-        } catch (e) {
-          if (e.code === 4902) {
-            await window.ethereum.request({
-              method: 'wallet_addEthereumChain',
-              params: [{ chainId: SEPOLIA_CHAIN_ID_HEX, chainName: 'Sepolia Testnet', nativeCurrency: { name: 'ETH', symbol: 'ETH', decimals: 18 }, rpcUrls: ['https://rpc.sepolia.org'], blockExplorerUrls: [EXPLORER] }]
-            })
-          }
-        }
-      }
+function updateWalletUI(){
+  document.getElementById('connectWrap').style.display = 'none';
+  document.getElementById('walletChipWrap').style.display = 'block';
+  document.getElementById('walletChipAddr').textContent = short(userAddress);
+  document.getElementById('dropdownAddr').textContent = userAddress;
+  document.getElementById('yourAddr').textContent = short(userAddress);
+  document.getElementById('netDot').classList.remove('wrong');
+}
 
-      provider = new ethers.BrowserProvider(window.ethereum)
-      signer = await provider.getSigner()
-      account = await signer.getAddress()
+document.getElementById('walletChip').onclick = (e) => {
+  e.stopPropagation();
+  document.getElementById('walletDropdown').classList.toggle('open');
+};
+document.addEventListener('click', () => document.getElementById('walletDropdown').classList.remove('open'));
 
-      document.getElementById('walletDot').className = 'dot green'
-      document.getElementById('walletText').textContent = account.slice(0, 6) + '...' + account.slice(-4)
-      document.getElementById('fundBtn').disabled = false
-      document.getElementById('pauseBtn').disabled = false
-      document.getElementById('unpauseBtn').disabled = false
+document.getElementById('copyAddrBtn').onclick = () => {
+  navigator.clipboard.writeText(userAddress);
+  toast({type:'success', title:'Address Copied'});
+};
+document.getElementById('etherscanBtn').onclick = () => window.open(`${CONFIG.explorer}/address/${userAddress}`, '_blank');
+document.getElementById('disconnectBtn').onclick = () => window.location.reload();
 
-      await loadStats()
-      showToast('Wallet connected!', 'success')
-    } catch (e) {
-      showToast(e.message || 'Connection failed', 'error')
+/* ---------------- DATA REFRESH ---------------- */
+async function refreshAll(){
+  if (!stakingRead) return;
+  try{
+    const [owner, paused, rate, finish, duration, staked, contractBalance] = await Promise.all([
+      stakingRead.owner().catch(()=>null),
+      stakingRead.paused().catch(()=>false),
+      stakingRead.rewardRate().catch(()=>0n),
+      stakingRead.periodFinish().catch(()=>0n),
+      stakingRead.rewardsDuration().catch(()=>0n),
+      stakingRead.totalStaked().catch(()=> stakingRead.totalSupply().catch(()=>0n)),
+      usdcRead.balanceOf(CONFIG.stakingAddress).catch(()=>null)
+    ]);
+
+    // Owner
+    if (owner){
+      document.getElementById('ownerAddr').textContent = short(owner);
+      isOwner = userAddress && owner.toLowerCase() === userAddress.toLowerCase();
+      document.getElementById('ownerWarning').style.display = isOwner ? 'none' : 'flex';
+      document.getElementById('ownerLine').textContent = 'Owner ' + short(owner);
     }
-  }
 
-  async function loadStats() {
-    try {
-      const contract = new ethers.Contract(CONTRACT_ADDRESS, STAKING_ABI, provider)
-      const usdc = new ethers.Contract(USDC_ADDRESS, ERC20_ABI, provider)
+    // Status
+    const statusBadge = document.getElementById('statusBadge');
+    const statusText = document.getElementById('statusText');
+    const protocolStatusVal = document.getElementById('protocolStatusVal');
+    statusBadge.classList.toggle('active', !paused);
+    statusBadge.classList.toggle('paused', !!paused);
+    statusText.textContent = paused ? 'Paused' : 'Active';
+    protocolStatusVal.textContent = paused ? 'Paused' : 'Active';
+    document.getElementById('pauseBtn').disabled = !!paused;
+    document.getElementById('unpauseBtn').disabled = !paused;
 
-      const [totalStaked, apr, periodFinish, paused, balance] = await Promise.all([
-        contract.totalStaked(),
-        contract.currentAPR(),
-        contract.periodFinish(),
-        contract.paused(),
-        account ? usdc.balanceOf(account) : 0n,
-      ])
+    // Totals
+    const totalStakedNum = Number(ethers.formatUnits(staked, usdcDecimals));
+    animateValue('totalStaked', totalStakedNum, 'USDC');
 
-      document.getElementById('totalStaked').textContent = (Number(ethers.formatUnits(totalStaked, 6))).toLocaleString() + ' USDC'
-      document.getElementById('currentAPR').textContent = (Number(apr) / 100).toFixed(2) + '%'
-      document.getElementById('ownerBalance').textContent = (Number(ethers.formatUnits(balance, 6))).toLocaleString() + ' USDC'
-
-      const now = Math.floor(Date.now() / 1000)
-      const finish = Number(periodFinish)
-      if (finish < now) {
-        document.getElementById('rewardPeriod').innerHTML = '<span class="stat-value red">Ended</span>'
-      } else {
-        const remaining = finish - now
-        const days = Math.floor(remaining / 86400)
-        const hours = Math.floor((remaining % 86400) / 3600)
-        document.getElementById('rewardPeriod').textContent = `${days}d ${hours}h remaining`
-      }
-
-      document.getElementById('protocolStatus').innerHTML = paused
-        ? '<span class="stat-value red">⏸ Paused</span>'
-        : '<span class="stat-value green">✅ Active</span>'
-
-    } catch (e) {
-      console.error(e)
-    }
-  }
-
-  function updatePreview() {
-    const amount = parseFloat(document.getElementById('rewardAmount').value) || 0
-    const days = parseFloat(document.getElementById('rewardDays').value) || 0
-    const preview = document.getElementById('aprPreview')
-
-    if (!amount || !days) {
-      preview.textContent = 'Enter amount and days to preview APR'
-      return
+    if (contractBalance !== null){
+      const balanceNum = Number(ethers.formatUnits(contractBalance, usdcDecimals));
+      const pool = Math.max(balanceNum - totalStakedNum, 0);
+      animateValue('heroTVL', balanceNum, 'USDC', true);
+      document.getElementById('heroStakedMini').textContent = fmt(totalStakedNum,2) + ' USDC';
+      document.getElementById('heroPoolMini').textContent = fmt(pool,2) + ' USDC';
+      document.getElementById('heroTVLSub').textContent = pool > 0.0001
+        ? `${fmt(totalStakedNum,2)} staked + ${fmt(pool,2)} reward pool`
+        : 'Staked principal + reward pool, combined USDC balance';
+    } else {
+      document.getElementById('heroTVL').textContent = '—';
     }
 
-    const rewardPerYear = (amount / days) * 365
-    const apr100 = (rewardPerYear / 100) * 100
-    const apr500 = (rewardPerYear / 500) * 100
-    const apr1000 = (rewardPerYear / 1000) * 100
+    const rateNum = Number(ethers.formatUnits(rate, usdcDecimals)); // per second
+    const durationSec = Number(duration);
+    const finishSec = Number(finish);
+    const nowSec = Math.floor(Date.now()/1000);
 
-    preview.innerHTML = `
-      <strong>${amount} USDC</strong> over <strong>${days} days</strong><br><br>
-      <span style="color:#9CA3AF; font-size:12px">
-        APR if 100 USDC staked: <strong style="color:#00F0FF">${apr100.toFixed(0)}%</strong> &nbsp;|&nbsp;
-        500 USDC: <strong style="color:#00F0FF">${apr500.toFixed(0)}%</strong> &nbsp;|&nbsp;
-        1000 USDC: <strong style="color:#00F0FF">${apr1000.toFixed(0)}%</strong>
-      </span>
-    `
-  }
+    const dailyRate = rateNum * 86400;
+    document.getElementById('dailyRate').innerHTML = fmt(dailyRate,2) + '<span class="unit">USDC/day</span>';
 
-  async function fundRewards() {
-    const amount = parseFloat(document.getElementById('rewardAmount').value)
-    const days = parseFloat(document.getElementById('rewardDays').value)
+    const periodTotal = rateNum * durationSec;
+    document.getElementById('periodTotal').innerHTML = fmt(periodTotal,2) + '<span class="unit">USDC</span>';
 
-    if (!amount || amount <= 0) return showToast('Enter a valid amount', 'error')
-    if (!days || days <= 0) return showToast('Enter valid days', 'error')
-    if (!signer) return showToast('Connect wallet first', 'error')
+    const remainingSec = Math.max(finishSec - nowSec, 0);
+    const remainingReward = rateNum * remainingSec;
+    document.getElementById('remainingReward').innerHTML = fmt(remainingReward,2) + '<span class="unit">USDC</span>';
 
-    const parsedAmount = ethers.parseUnits(amount.toString(), 6)
-    const duration = Math.floor(days * 86400)
+    const distributed = Math.max(periodTotal - remainingReward, 0);
+    document.getElementById('distributed').innerHTML = fmt(distributed,2) + '<span class="unit">USDC</span>';
 
-    try {
-      setBtn('fundBtn', '<span class="spinner"></span> Step 1/2: Approving...', true)
-
-      const usdc = new ethers.Contract(USDC_ADDRESS, ERC20_ABI, signer)
-      const approveTx = await usdc.approve(CONTRACT_ADDRESS, parsedAmount)
-      showToast('Approving USDC...', 'info', approveTx.hash)
-      await approveTx.wait()
-
-      setBtn('fundBtn', '<span class="spinner"></span> Step 2/2: Funding...', true)
-
-      const contract = new ethers.Contract(CONTRACT_ADDRESS, STAKING_ABI, signer)
-      const fundTx = await contract.notifyRewardAmount(parsedAmount, duration)
-      showToast('Funding rewards...', 'info', fundTx.hash)
-      await fundTx.wait()
-
-      showToast(`✅ ${amount} USDC funded for ${days} days!`, 'success', fundTx.hash)
-      setBtn('fundBtn', 'Fund Rewards', false)
-      await loadStats()
-
-    } catch (e) {
-      console.error(e)
-      showToast(e.shortMessage || e.reason || 'Transaction failed', 'error')
-      setBtn('fundBtn', 'Fund Rewards', false)
+    // APR estimate = (annual reward flow / total staked) * 100
+    let apr = 0;
+    if (totalStakedNum > 0 && rateNum > 0){
+      apr = (rateNum * 31536000 / totalStakedNum) * 100;
     }
-  }
+    document.getElementById('currentAPR').innerHTML = fmt(apr,2) + '<span class="unit">%</span>';
 
-  async function pauseProtocol() {
-    if (!signer) return showToast('Connect wallet first', 'error')
-    try {
-      setBtn('pauseBtn', '<span class="spinner"></span>', true)
-      const contract = new ethers.Contract(CONTRACT_ADDRESS, STAKING_ABI, signer)
-      const tx = await contract.pause()
-      await tx.wait()
-      showToast('Protocol paused', 'success', tx.hash)
-      setBtn('pauseBtn', 'Pause', false)
-      await loadStats()
-    } catch (e) {
-      showToast(e.shortMessage || 'Failed', 'error')
-      setBtn('pauseBtn', 'Pause', false)
+    // Countdown ring + text
+    const ring = document.getElementById('ringFg');
+    const circumference = 169.6;
+    let pct = 0;
+    if (durationSec > 0){
+      pct = Math.min(Math.max(remainingSec / durationSec, 0), 1);
     }
-  }
+    ring.style.strokeDashoffset = String(circumference * (1 - pct));
 
-  async function unpauseProtocol() {
-    if (!signer) return showToast('Connect wallet first', 'error')
-    try {
-      setBtn('unpauseBtn', '<span class="spinner"></span>', true)
-      const contract = new ethers.Contract(CONTRACT_ADDRESS, STAKING_ABI, signer)
-      const tx = await contract.unpause()
-      await tx.wait()
-      showToast('Protocol unpaused', 'success', tx.hash)
-      setBtn('unpauseBtn', 'Unpause', false)
-      await loadStats()
-    } catch (e) {
-      showToast(e.shortMessage || 'Failed', 'error')
-      setBtn('unpauseBtn', 'Unpause', false)
+    if (remainingSec <= 0){
+      document.getElementById('countdown').textContent = 'Ended';
+      document.getElementById('countdownDate').textContent = 'কোনো active period নেই';
+    } else {
+      const days = Math.floor(remainingSec / 86400);
+      const hours = Math.floor((remainingSec % 86400) / 3600);
+      document.getElementById('countdown').textContent = `${days}d ${hours}h`;
+      const endDate = new Date(finishSec * 1000);
+      document.getElementById('countdownDate').textContent = 'শেষ হবে ' + endDate.toLocaleDateString();
     }
-  }
 
-  // Auto-refresh stats every 30s
-  setInterval(() => { if (provider) loadStats() }, 30000)
+    updateDailyPreview();
+    markUpdated();
+  }catch(err){
+    console.error('refresh error', err);
+  }
+}
+
+function startAutoRefresh(){
+  if (refreshTimer) clearInterval(refreshTimer);
+  refreshTimer = setInterval(refreshAll, 30000);
+}
+
+/* ---------------- FUND REWARDS FLOW ---------------- */
+const fundAmountEl = document.getElementById('fundAmount');
+const fundDaysEl = document.getElementById('fundDays');
+fundAmountEl.addEventListener('input', updateDailyPreview);
+fundDaysEl.addEventListener('input', updateDailyPreview);
+
+function updateDailyPreview(){
+  const amt = parseFloat(fundAmountEl.value);
+  const days = parseFloat(fundDaysEl.value);
+  const hint = document.getElementById('dailyPreview');
+  if (amt > 0 && days > 0){
+    hint.textContent = `≈ ${fmt(amt/days,4)} USDC distributed per day over ${days} days`;
+  } else {
+    hint.textContent = 'Daily payout preview will appear here';
+  }
+  syncAllowanceUI();
+}
+
+// Checks the on-chain USDC allowance against the entered amount so the Fund
+// button reflects real approval state instead of only this session's clicks
+// (fixes: button staying disabled after reload even when already approved).
+async function syncAllowanceUI(){
+  if (!usdcRead || !userAddress) return;
+  const amt = parseFloat(fundAmountEl.value);
+  if (!(amt > 0)){ return; }
+  try{
+    const needed = ethers.parseUnits(String(amt), usdcDecimals);
+    const allowance = await usdcRead.allowance(userAddress, CONFIG.stakingAddress);
+    const sufficient = allowance >= needed;
+    document.getElementById('fundBtn').disabled = !sufficient;
+    document.getElementById('stepDot1').classList.toggle('done', sufficient);
+    document.getElementById('stepDot2').classList.toggle('active', sufficient);
+  }catch(e){ /* ignore — user may not be connected yet */ }
+}
+
+document.getElementById('approveBtn').onclick = async () => {
+  if (!requireWallet()) return;
+  const amt = parseFloat(fundAmountEl.value);
+  if (!(amt > 0)){ toast({type:'error', title:'Enter a valid amount'}); return; }
+  const btn = document.getElementById('approveBtn');
+  try{
+    btn.disabled = true;
+    const amount = ethers.parseUnits(String(amt), usdcDecimals);
+    toast({type:'pending', title:'Approval Pending', msg:'Confirm in your wallet…'});
+    const tx = await usdcWrite.approve(CONFIG.stakingAddress, amount);
+    toast({type:'pending', title:'Approval Submitted', msg:'Waiting for confirmation…', txHash: tx.hash});
+    await tx.wait();
+    toast({type:'success', title:'USDC Approved', msg: fmt(amt,2)+' USDC approved', txHash: tx.hash});
+    await syncAllowanceUI();
+  }catch(err){
+    console.error(err);
+    toast({type:'error', title:'Approval Failed', msg: parseErr(err)});
+  }finally{ btn.disabled = false; }
+};
+
+document.getElementById('fundBtn').onclick = () => {
+  if (!requireWallet()) return;
+  const amt = parseFloat(fundAmountEl.value);
+  const days = parseFloat(fundDaysEl.value);
+  if (!(amt > 0) || !(days > 0)){ toast({type:'error', title:'Enter amount and days first'}); return; }
+  openConfirm('fund', 'Confirm Fund Rewards',
+    `Notify the contract of ${fmt(amt,2)} USDC to be distributed over ${days} days (${fmt(amt/days,4)} USDC/day). This action is on-chain and irreversible.`);
+};
+
+async function doFundRewards(){
+  const amt = parseFloat(fundAmountEl.value);
+  const days = parseFloat(fundDaysEl.value);
+  try{
+    const amount = ethers.parseUnits(String(amt), usdcDecimals);
+    toast({type:'pending', title:'Funding Rewards', msg:'Confirm in your wallet…'});
+    // set duration first if contract exposes it and differs — best-effort, ignore failure
+    try{
+      const secDuration = Math.round(days * 86400);
+      await (await stakingWrite.setRewardsDuration(secDuration)).wait();
+    }catch(e){ /* duration may be fixed on-contract or restricted while active period runs */ }
+
+    const tx = await stakingWrite.notifyRewardAmount(amount);
+    toast({type:'pending', title:'Transaction Submitted', msg:'Waiting for confirmation…', txHash: tx.hash});
+    await tx.wait();
+    toast({type:'success', title:'Rewards Funded', msg: fmt(amt,2)+' USDC added to reward pool', txHash: tx.hash});
+    document.getElementById('stepDot1').classList.remove('done');
+    document.getElementById('stepDot2').classList.remove('active');
+    document.getElementById('fundBtn').disabled = true;
+    fundAmountEl.value = ''; fundDaysEl.value = '';
+    updateDailyPreview();
+    await refreshAll();
+  }catch(err){
+    console.error(err);
+    toast({type:'error', title:'Funding Failed', msg: parseErr(err)});
+  }
+}
+
+/* ---------------- PAUSE / UNPAUSE ---------------- */
+document.getElementById('pauseBtn').onclick = () => {
+  if (!requireWallet()) return;
+  openConfirm('pause', 'Pause Protocol', 'This will immediately halt staking, withdrawals, and reward claims for all users. Continue?');
+};
+document.getElementById('unpauseBtn').onclick = () => {
+  if (!requireWallet()) return;
+  openConfirm('unpause', 'Unpause Protocol', 'This will resume normal protocol operations for all users. Continue?');
+};
+
+async function doPauseToggle(pause){
+  try{
+    toast({type:'pending', title: pause ? 'Pausing…' : 'Unpausing…', msg:'Confirm in your wallet…'});
+    const tx = pause ? await stakingWrite.pause() : await stakingWrite.unpause();
+    toast({type:'pending', title:'Transaction Submitted', msg:'Waiting for confirmation…', txHash: tx.hash});
+    await tx.wait();
+    toast({type:'success', title: pause ? 'Protocol Paused' : 'Protocol Active', txHash: tx.hash});
+    await refreshAll();
+  }catch(err){
+    console.error(err);
+    toast({type:'error', title:'Action Failed', msg: parseErr(err)});
+  }
+}
+
+/* ---------------- CONFIRM MODAL ---------------- */
+function openConfirm(action, title, body){
+  pendingAction = action;
+  document.getElementById('confirmTitle').textContent = title;
+  document.getElementById('confirmBody').textContent = body;
+  toggleOverlay('confirmModal', true);
+}
+document.getElementById('closeConfirmModal').onclick = () => toggleOverlay('confirmModal', false);
+document.getElementById('confirmCancel').onclick = () => toggleOverlay('confirmModal', false);
+document.getElementById('confirmOk').onclick = async () => {
+  toggleOverlay('confirmModal', false);
+  if (pendingAction === 'pause') await doPauseToggle(true);
+  else if (pendingAction === 'unpause') await doPauseToggle(false);
+  else if (pendingAction === 'fund') await doFundRewards();
+  pendingAction = null;
+};
+
+/* ---------------- HELPERS ---------------- */
+function requireWallet(){
+  if (!signer){ toast({type:'error', title:'Wallet Not Connected', msg:'Connect your wallet first'}); openWalletModal(); return false; }
+  return true;
+}
+function parseErr(err){
+  const msg = err?.reason || err?.shortMessage || err?.message || 'Transaction failed';
+  return msg.length > 130 ? msg.slice(0,130) + '…' : msg;
+}
+
+/* ---------------- INIT ---------------- */
+(function init(){
+  document.getElementById('contractShort').textContent = short(CONFIG.stakingAddress);
+  // Read-only preview before wallet connects
+  try{
+    stakingRead = new ethers.Contract(CONFIG.stakingAddress, STAKING_ABI, getReadProvider());
+    usdcRead = new ethers.Contract(CONFIG.usdcAddress, ERC20_ABI, getReadProvider());
+    usdcRead.decimals().then(d => { usdcDecimals = d; refreshAll(); }).catch(() => refreshAll());
+    startAutoRefresh();
+  }catch(e){ console.error(e); }
+})();
 </script>
 </body>
 </html>
